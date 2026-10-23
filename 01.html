@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Native · 第 1 课：零 Token Design — ha7ch.school</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='5' fill='%23f5c451'/%3E%3Crect x='10' y='10' width='12' height='12' rx='2' fill='%2305070d'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=JetBrains+Mono:wght@400;600;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+/* ============ base ============ */
+:root{
+  --bg:#05070d; --ink:#ece7db; --dim:#98a1ac; --line:rgba(255,255,255,.09);
+  --gold:#f5c451; --acc:#f5c451; --tint:rgba(245,196,81,.10);
+  --serif:'Noto Serif SC','Songti SC','SimSun',serif;
+  --edi:'Cormorant Garamond','Noto Serif SC',serif;
+  --mono:'JetBrains Mono','Cascadia Code','Consolas',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.9 var(--serif);overflow-x:hidden;
+  -webkit-font-smoothing:antialiased}
+::selection{background:rgba(245,196,81,.28);color:#fff}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:#070a12}
+::-webkit-scrollbar-thumb{background:#2a3348;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+a{color:inherit}
+
+/* ============ bg layers ============ */
+#bg3d{position:fixed;inset:0;z-index:0;pointer-events:none;display:block}
+#tint{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(1100px 760px at 72% 14%,var(--tint),transparent 62%);
+  transition:background 1.6s ease}
+#mouse-light{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(760px circle at var(--mx,72%) var(--my,20%),rgba(236,231,219,.045),transparent 60%)}
+#vignette{position:fixed;inset:0;z-index:3;pointer-events:none;
+  box-shadow:inset 0 0 150px rgba(0,0,0,.86)}
+
+/* ============ gate ============ */
+#gate{position:fixed;inset:0;z-index:60;background:radial-gradient(1000px 700px at 50% 42%,#0a0f1c,#020308 70%);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:34px;
+  transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+#gate.off{opacity:0;transform:scale(1.05);pointer-events:none}
+.gate-kicker{font:600 12px var(--mono);letter-spacing:.5em;color:var(--dim);text-transform:uppercase}
+.gate-kicker b{color:var(--gold)}
+.gate-term{width:min(700px,92vw);background:rgba(8,12,22,.92);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 40px 120px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.08);overflow:hidden}
+.term-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.03)}
+.term-bar i{width:11px;height:11px;border-radius:50%;display:block}
+.term-bar i:nth-child(1){background:#ff5f57}.term-bar i:nth-child(2){background:#febc2e}.term-bar i:nth-child(3){background:#28c840}
+.term-bar span{margin-left:8px;font:400 11px var(--mono);color:var(--dim);letter-spacing:.08em}
+.gate-lines{padding:22px 24px 26px;font:400 13.5px/2.1 var(--mono);color:#c8d2df;min-height:240px;white-space:pre-wrap}
+.gate-lines .ok{color:#28c840}.gate-lines .gold{color:var(--gold);font-weight:600}
+.gate-lines .dim{color:#5d6a7a}
+.cursor{display:inline-block;width:8px;height:16px;background:var(--gold);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+#gate-enter{opacity:0;pointer-events:none;transition:opacity .8s}
+#gate.entered #gate-enter{opacity:1;pointer-events:auto}
+#gate-enter{font:700 14px var(--mono);letter-spacing:.32em;color:#05070d;background:var(--gold);border:none;
+  padding:15px 42px;border-radius:8px;cursor:pointer;box-shadow:0 0 0 0 rgba(245,196,81,.5);animation:pulse 2.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,196,81,.45)}70%{box-shadow:0 0 0 18px rgba(245,196,81,0)}100%{box-shadow:0 0 0 0 rgba(245,196,81,0)}}
+#gate-skip{position:absolute;top:22px;right:26px;font:400 12px var(--mono);letter-spacing:.2em;color:#5d6a7a;
+  background:none;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:7px 16px;cursor:pointer;transition:.3s}
+#gate-skip:hover{color:var(--ink);border-color:rgba(255,255,255,.35)}
+
+/* ============ HUD ============ */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;height:58px;border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(5,7,13,.55);backdrop-filter:blur(18px)}
+.brand{font:800 15px var(--mono);letter-spacing:.06em;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.brand::before{content:'';width:13px;height:13px;background:var(--gold);border-radius:3px;box-shadow:0 0 14px rgba(245,196,81,.7)}
+.brand span{color:var(--dim);font-weight:400}
+#chg-badge{font:600 11px var(--mono);letter-spacing:.22em;color:var(--gold);text-transform:uppercase;white-space:nowrap;
+  border:1px solid rgba(245,196,81,.3);padding:6px 14px;border-radius:20px;background:rgba(245,196,81,.06);
+  transition:.4s;max-width:280px;overflow:hidden;text-overflow:ellipsis}
+#pills{display:flex;gap:7px}
+#pills button{font:600 12px var(--mono);color:var(--dim);background:none;border:1px solid transparent;border-radius:8px;
+  width:32px;height:32px;cursor:pointer;transition:.3s}
+#pills button:hover{color:var(--ink);border-color:var(--line)}
+#pills button.on{color:var(--gold);border-color:rgba(245,196,81,.45);background:rgba(245,196,81,.08);
+  box-shadow:0 0 16px rgba(245,196,81,.18)}
+#music{display:flex;align-items:flex-end;gap:2.5px;height:32px;padding:0 8px;background:none;border:1px solid var(--line);
+  border-radius:8px;cursor:pointer;transition:.3s}
+#music:hover{border-color:rgba(255,255,255,.3)}
+#music i{width:3px;background:var(--dim);height:6px;border-radius:2px;transition:.3s}
+#music.on i{background:var(--gold);animation:eq .9s ease-in-out infinite}
+#music.on i:nth-child(2){animation-delay:.15s}#music.on i:nth-child(3){animation-delay:.3s}#music.on i:nth-child(4){animation-delay:.45s}
+@keyframes eq{0%,100%{height:5px}50%{height:20px}}
+
+#bottombar{position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(5,7,13,.6);backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.06)}
+#pbar{height:2px;background:rgba(255,255,255,.06)}
+#pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#b98d2c,var(--gold));
+  box-shadow:0 0 12px rgba(245,196,81,.8)}
+.bb-row{display:flex;align-items:center;justify-content:space-between;padding:9px 26px;gap:14px}
+#reboot{font:400 11px var(--mono);letter-spacing:.14em;color:#5d6a7a;background:none;border:none;cursor:pointer;
+  transition:.3s;white-space:nowrap}
+#reboot:hover{color:var(--gold)}
+#hotbar{display:flex;gap:8px}
+#hotbar button{font:600 13px var(--mono);color:var(--dim);width:36px;height:36px;background:rgba(255,255,255,.03);
+  border:1px solid var(--line);border-radius:9px;cursor:pointer;transition:.35s cubic-bezier(.16,1,.3,1)}
+#hotbar button:hover{color:var(--ink);transform:translateY(-3px)}
+#hotbar button.on{color:#05070d;background:var(--gold);border-color:var(--gold);transform:translateY(-3px);
+  box-shadow:0 6px 22px rgba(245,196,81,.35)}
+#rb{display:flex;align-items:center;gap:10px;font:400 11px var(--mono);letter-spacing:.1em;color:var(--dim);white-space:nowrap}
+#rb b{color:var(--gold);font-weight:800;font-size:13px;text-shadow:0 0 14px rgba(245,196,81,.55)}
+#rb .tick{color:#28c840}
+@media(max-width:900px){#pills,#chg-badge{display:none}}
+@media(max-width:640px){#hotbar{display:none}.bb-row{justify-content:center}}
+
+/* ============ achievement ============ */
+#achv{position:fixed;top:72px;right:22px;z-index:70;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:rgba(10,14,24,.94);border:1px solid rgba(245,196,81,.45);border-radius:12px;padding:13px 20px 13px 16px;
+  box-shadow:0 18px 60px rgba(0,0,0,.6),0 0 30px rgba(245,196,81,.12);min-width:250px;
+  animation:tin .6s cubic-bezier(.16,1,.3,1)}
+.toast small{display:block;font:800 10px var(--mono);letter-spacing:.3em;color:var(--gold)}
+.toast div{font:600 15px var(--serif);margin-top:3px}
+.toast.bye{animation:tout .5s forwards}
+@keyframes tin{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateX(60px)}}
+
+/* ============ story beats & chapters ============ */
+main{position:relative;z-index:10}
+.story-beat{opacity:.04;filter:blur(8px);transform:translateY(44px) scale(.975);
+  transition:opacity 1.15s cubic-bezier(.16,1,.3,1),transform 1.15s cubic-bezier(.16,1,.3,1),filter 1.15s cubic-bezier(.16,1,.3,1);
+  transition-delay:var(--d,0s)}
+.story-beat.in-view{opacity:1;filter:none;transform:none}
+html.capture .story-beat{transition:none;opacity:1;filter:none;transform:none}
+html.capture #prologue{min-height:880px}
+
+.chapter-section{position:relative;max-width:1120px;margin:0 auto;padding:150px 30px 175px}
+.watermark{position:absolute;top:64px;left:50%;transform:translateX(-50%);z-index:-1;
+  font:600 clamp(120px,17vw,230px)/1 var(--edi);letter-spacing:.04em;color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,.05);pointer-events:none;user-select:none;white-space:nowrap}
+.ch-act{font:800 12px var(--mono);letter-spacing:.5em;color:var(--acc);text-transform:uppercase;margin-bottom:18px;
+  display:flex;align-items:center;gap:16px}
+.ch-act::after{content:'';flex:0 0 72px;height:1px;background:linear-gradient(90deg,var(--acc),transparent)}
+.ch-title{font:900 clamp(28px,3.6vw,46px)/1.4 var(--serif);letter-spacing:.01em}
+.ch-title em{font-style:normal;color:var(--acc);text-shadow:0 0 30px color-mix(in srgb,var(--acc) 40%,transparent)}
+.ch-sub{font:italic 500 19px var(--edi);color:var(--dim);margin-top:8px}
+.beat-p{color:#c9cfd8;max-width:820px;margin:26px 0}
+.beat-p strong{color:var(--ink)}
+.beat-p .hl{color:var(--acc);font-weight:700}
+
+/* quotes */
+.qblock{max-width:860px;margin:44px 0;padding:6px 0 6px 26px;border-left:2px solid var(--acc);position:relative}
+.qblock .qen{font:italic 500 clamp(20px,2.3vw,29px)/1.55 var(--edi);color:var(--ink)}
+.qblock .qzh{margin-top:14px;color:var(--dim);font-size:15.5px}
+.qblock .qtag{display:inline-block;margin-top:14px;font:600 10.5px var(--mono);letter-spacing:.3em;
+  color:var(--acc);text-transform:uppercase}
+
+/* glass & buttons & terms */
+.glass{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+  border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(22px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 30px 80px rgba(0,0,0,.45)}
+.btn{font:700 13px var(--mono);letter-spacing:.18em;color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,transparent);
+  border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);border-radius:10px;padding:13px 26px;cursor:pointer;
+  transition:.3s;white-space:nowrap}
+.btn:hover{background:color-mix(in srgb,var(--acc) 20%,transparent);box-shadow:0 0 26px color-mix(in srgb,var(--acc) 30%,transparent);transform:translateY(-2px)}
+.btn:disabled{opacity:.45;cursor:default;transform:none;box-shadow:none}
+.widget{margin:52px 0 20px;overflow:hidden}
+.w-head{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.03)}
+.w-head i{width:10px;height:10px;border-radius:50%;display:block}
+.w-head i:nth-child(1){background:#ff5f57}.w-head i:nth-child(2){background:#febc2e}.w-head i:nth-child(3){background:#28c840}
+.w-head span{margin-left:8px;font:400 11.5px var(--mono);color:var(--dim);letter-spacing:.06em}
+.w-foot{padding:14px 22px;font:400 12.5px var(--mono);color:var(--dim);border-top:1px solid rgba(255,255,255,.05);
+  letter-spacing:.03em}
+
+/* ============ prologue ============ */
+#prologue{min-height:100vh;display:flex;flex-direction:column;justify-content:center;text-align:center;padding-top:120px}
+#prologue .watermark{top:auto;bottom:40px}
+.pro-kicker{font:600 13px var(--mono);letter-spacing:.6em;color:var(--gold);text-transform:uppercase}
+.pro-kicker span{color:var(--dim)}
+#prologue h1{font:900 clamp(58px,9vw,124px)/1.18 var(--serif);margin:26px 0 6px;letter-spacing:.02em;
+  text-shadow:0 0 80px rgba(245,196,81,.18)}
+#prologue h1 b{color:var(--gold);font-weight:900;text-shadow:0 0 60px rgba(245,196,81,.5)}
+.pro-en{font:italic 500 clamp(20px,2.6vw,30px) var(--edi);color:var(--dim);letter-spacing:.12em}
+.hook-wrap{max-width:880px;margin:64px auto 0;text-align:left}
+.hook-lead{font:400 15px var(--serif);color:var(--dim);margin-bottom:16px;letter-spacing:.05em}
+.hook{font:700 clamp(21px,2.5vw,31px)/1.85 var(--serif);border-left:3px solid var(--gold);padding:6px 0 6px 30px;
+  background:linear-gradient(90deg,rgba(245,196,81,.06),transparent 70%)}
+.essence{max-width:900px;margin:56px auto 0;text-align:left;padding:34px 38px}
+.essence .tag{font:800 11px var(--mono);letter-spacing:.4em;color:var(--gold)}
+.essence p{margin-top:14px;font:600 clamp(16.5px,1.8vw,21px)/2 var(--serif);color:#dfe3ea}
+.essence .hl{color:var(--gold)}
+.essence .hl2{color:#7fd4a8}
+.chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:44px}
+.chips span{font:600 12px var(--mono);letter-spacing:.1em;color:var(--dim);border:1px solid var(--line);
+  border-radius:20px;padding:7px 16px;background:rgba(255,255,255,.03);transition:.3s}
+.chips span:hover{color:var(--gold);border-color:rgba(245,196,81,.4)}
+.scroll-hint{margin-top:74px;font:400 12px var(--mono);letter-spacing:.4em;color:#5d6a7a;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(9px);opacity:1}}
+
+/* ============ ACT I : burn chat ============ */
+.w1-body{display:grid;grid-template-columns:1fr 250px;gap:0}
+.w1-chat{padding:20px 22px;min-height:300px;display:flex;flex-direction:column;gap:13px;font-size:14px;line-height:1.75}
+.msg{max-width:86%;padding:10px 15px;border-radius:13px;animation:min .5s cubic-bezier(.16,1,.3,1)}
+@keyframes min{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.msg.u{align-self:flex-end;background:color-mix(in srgb,var(--acc) 16%,transparent);
+  border:1px solid color-mix(in srgb,var(--acc) 30%,transparent);border-bottom-right-radius:4px}
+.msg.a{align-self:flex-start;background:rgba(255,255,255,.045);border:1px solid var(--line);border-bottom-left-radius:4px;color:#c9cfd8}
+.msg.a .fee{display:block;margin-top:5px;font:400 11px var(--mono);color:#ff8a70}
+.w1-meter{border-left:1px solid rgba(255,255,255,.06);padding:22px 20px;display:flex;flex-direction:column;gap:16px;
+  font:400 11px var(--mono);letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.w1-meter b{display:block;font:800 24px var(--mono);color:var(--ink);letter-spacing:0;margin-top:4px}
+.w1-meter .burn b{color:#ff6b4a;text-shadow:0 0 20px rgba(255,107,74,.45)}
+.w1-meter .burn b.hot{animation:hotf .5s}
+@keyframes hotf{0%{transform:scale(1.25);color:#ffb199}100%{transform:scale(1)}}
+.w1-actions{display:flex;align-items:center;gap:18px;padding:18px 22px;border-top:1px solid rgba(255,255,255,.05);flex-wrap:wrap}
+.w1-hint{font:400 12px var(--mono);color:#5d6a7a;letter-spacing:.04em}
+.w1-month{display:none;margin-top:10px;padding:14px 18px;border-radius:12px;
+  background:rgba(255,107,74,.08);border:1px dashed rgba(255,107,74,.5);
+  font:600 14px var(--mono);color:#ff8a70}
+.w1-month.show{display:block;animation:min .7s}
+@media(max-width:760px){.w1-body{grid-template-columns:1fr}.w1-meter{border-left:none;border-top:1px solid rgba(255,255,255,.06)}}
+
+/* ============ ACT II : agent terminal ============ */
+.w2-body{display:grid;grid-template-columns:1.25fr 1fr;gap:0}
+.w2-out{padding:20px 22px;font:400 13px/2.05 var(--mono);color:#9fb4c8;min-height:330px;white-space:pre-wrap}
+.w2-out .cmd{color:#e8eef5}.w2-out .ok{color:#3ddc97}.w2-out .gold{color:var(--gold)}
+.w2-caps{border-left:1px solid rgba(255,255,255,.06);padding:20px 20px;display:flex;flex-direction:column;gap:9px}
+.cap{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--line);border-radius:11px;
+  font:400 13px var(--mono);color:var(--dim);transition:.4s;background:rgba(255,255,255,.02)}
+.cap i{width:8px;height:8px;border-radius:50%;background:#3a4356;flex:none;transition:.4s}
+.cap .st{margin-left:auto;font-size:11px;letter-spacing:.1em}
+.cap.done{color:var(--ink);border-color:color-mix(in srgb,var(--acc) 40%,transparent);
+  background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.cap.done i{background:#3ddc97;box-shadow:0 0 10px rgba(61,220,151,.7)}
+.cap.done .st{color:#3ddc97}
+.w2-actions{padding:18px 22px;border-top:1px solid rgba(255,255,255,.05)}
+@media(max-width:820px){.w2-body{grid-template-columns:1fr}.w2-caps{border-left:none;border-top:1px solid rgba(255,255,255,.06)}}
+
+/* aside callout */
+.aside{max-width:860px;margin:40px 0 0;padding:24px 28px;border-radius:16px;
+  background:color-mix(in srgb,var(--acc) 6%,rgba(255,255,255,.02));border:1px dashed color-mix(in srgb,var(--acc) 40%,transparent)}
+.aside .t{font:800 11px var(--mono);letter-spacing:.4em;color:var(--acc);text-transform:uppercase}
+.aside p{margin-top:10px;color:#c9cfd8;font-size:15.5px}
+
+/* ============ ACT III : pipeline ============ */
+.big-quote{max-width:920px;margin:54px auto;text-align:center}
+.big-quote .zh{font:900 clamp(26px,3.4vw,42px)/1.7 var(--serif)}
+.big-quote .zh b{color:var(--acc);text-shadow:0 0 34px color-mix(in srgb,var(--acc) 45%,transparent)}
+.big-quote .en{margin-top:16px;font:italic 500 clamp(17px,2vw,23px) var(--edi);color:var(--dim);letter-spacing:.04em}
+.w3-body{display:grid;grid-template-columns:1fr 74px 1fr;gap:0;align-items:stretch}
+.w3-side{padding:24px 24px 20px;display:flex;flex-direction:column;gap:9px}
+.w3-side h4{font:800 12px var(--mono);letter-spacing:.24em;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.w3-side.agent h4{color:#7fd4a8}.w3-side.prod h4{color:var(--gold)}
+.w3-side h4 i{width:9px;height:9px;border-radius:2px;display:block}
+.w3-side.agent h4 i{background:#3ddc97;box-shadow:0 0 12px rgba(61,220,151,.8)}
+.w3-side.prod h4 i{background:var(--gold);box-shadow:0 0 12px rgba(245,196,81,.8)}
+.trow{padding:11px 15px;border:1px solid var(--line);border-radius:10px;font-size:14px;color:var(--dim);
+  background:rgba(255,255,255,.02);transition:.5s;display:flex;gap:10px;align-items:baseline}
+.trow .n{font:600 10.5px var(--mono);color:#5d6a7a;letter-spacing:.1em}
+.w3-side.agent .trow.done{color:var(--ink);border-color:rgba(61,220,151,.42);background:rgba(61,220,151,.07)}
+.w3-side.prod .trow.done{color:var(--ink);border-color:rgba(245,196,81,.42);background:rgba(245,196,81,.07)}
+.trow.done .n{color:inherit}
+.w3-mid{display:flex;align-items:center;justify-content:center;position:relative}
+.w3-arrow{font:600 30px var(--mono);color:var(--dim);transition:.4s}
+.w3-mid.hot .w3-arrow{color:var(--gold);text-shadow:0 0 22px rgba(245,196,81,.8);transform:scale(1.28)}
+#w3-chip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;z-index:5;
+  background:#0b1322;border:1px solid rgba(245,196,81,.6);border-radius:10px;padding:9px 15px;
+  font:600 12px var(--mono);color:var(--gold);box-shadow:0 0 34px rgba(245,196,81,.35);pointer-events:none;
+  transition:transform 1s cubic-bezier(.45,0,.2,1),opacity .3s}
+#w3-chip.fly{opacity:1;transform:translate(150%,-50%) scale(1)}
+#w3-chip.land{transform:translate(290%,-50%) scale(.55);opacity:0;transition:transform 1s cubic-bezier(.5,0,.6,1),opacity .9s .5s}
+.w3-cv{margin-top:12px;border:1px solid rgba(245,196,81,.4);border-radius:12px;padding:15px 17px;
+  background:rgba(245,196,81,.05);opacity:.25;transform:translateY(8px);transition:.8s cubic-bezier(.16,1,.3,1)}
+.w3-cv.show{opacity:1;transform:none;box-shadow:0 0 34px rgba(245,196,81,.14)}
+.w3-cv .nm{font:700 16px var(--serif);color:var(--gold)}
+.w3-cv .rl{font:400 11px var(--mono);color:var(--dim);letter-spacing:.12em;margin:3px 0 9px}
+.w3-cv .ln{height:6px;border-radius:3px;background:rgba(255,255,255,.12);margin:6px 0}
+.w3-cv .ln.s{width:72%}.w3-cv .ln.m{width:88%}
+.w3-actions{display:flex;align-items:center;gap:18px;padding:18px 22px;border-top:1px solid rgba(255,255,255,.05);flex-wrap:wrap}
+.w3-note{font:400 12px var(--mono);color:#5d6a7a}
+@media(max-width:860px){.w3-body{grid-template-columns:1fr}.w3-mid{padding:16px 0;min-height:64px}#w3-chip{display:none}}
+
+/* lesson table */
+.dtable{width:100%;max-width:920px;margin:46px auto 0;border-collapse:separate;border-spacing:0;
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:15px}
+.dtable th{font:800 12px var(--mono);letter-spacing:.2em;text-transform:uppercase;text-align:left;padding:16px 22px}
+.dtable th.a{background:rgba(61,220,151,.09);color:#7fd4a8}
+.dtable th.b{background:rgba(245,196,81,.09);color:var(--gold)}
+.dtable td{padding:14px 22px;border-top:1px solid rgba(255,255,255,.06);color:#c9cfd8;line-height:1.75}
+.dtable td:first-child{border-right:1px solid rgba(255,255,255,.06)}
+.dtable tr:hover td{background:rgba(255,255,255,.025)}
+
+/* ============ ACT IV : byok vs zero ============ */
+.w4-grid{display:grid;grid-template-columns:1fr 66px 1fr;gap:0;align-items:stretch}
+.w4-card{padding:26px 26px 22px;display:flex;flex-direction:column;gap:4px}
+.w4-badge{font:800 12px var(--mono);letter-spacing:.26em;text-transform:uppercase;display:flex;gap:10px;align-items:center}
+.w4-card.byok .w4-badge{color:#ff8a70}
+.w4-card.zero .w4-badge{color:#7fd4a8}
+.w4-badge i{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font:800 12px var(--mono);font-style:normal}
+.w4-card.byok .w4-badge i{background:rgba(255,107,74,.14);border:1px solid rgba(255,107,74,.5)}
+.w4-card.zero .w4-badge i{background:rgba(61,220,151,.12);border:1px solid rgba(61,220,151,.5)}
+.w4-sub{font:400 12.5px var(--mono);color:#5d6a7a;margin:6px 0 16px;letter-spacing:.06em}
+.w4-step{display:flex;gap:12px;padding:10px 0 10px 4px;border-top:1px solid rgba(255,255,255,.06);font-size:14.5px;color:#c9cfd8}
+.w4-step .no{font:600 11px var(--mono);color:#5d6a7a;padding-top:4px;letter-spacing:.08em}
+.w4-card.byok .w4-step:hover .no{color:#ff8a70}
+.w4-card.zero .w4-step:hover .no{color:#7fd4a8}
+.sk{font:600 13px var(--mono);color:#ff8a70;position:relative;padding:2px 6px;background:rgba(255,107,74,.06)}
+.sk::after{content:'';position:absolute;left:0;top:52%;height:2px;width:0;background:#ff5a3c;transition:width .9s cubic-bezier(.16,1,.3,1)}
+.sk.struck::after{width:100%}
+.sk-note{display:block;font:400 11px var(--mono);color:#ff8a70;margin-top:5px;opacity:0;transition:.6s .7s}
+.sk-note.show{opacity:1}
+.w4-verdict{margin-top:auto;padding-top:16px;font:600 13px var(--mono);letter-spacing:.04em;line-height:2}
+.w4-card.byok .w4-verdict{color:#ff8a70}
+.w4-card.zero .w4-verdict{color:#7fd4a8}
+.w4-verdict .dim{color:#5d6a7a;font-weight:400}
+.w4-vs{display:flex;align-items:center;justify-content:center}
+.w4-vs span{font:italic 600 26px var(--edi);color:#5d6a7a;border:1px solid var(--line);border-radius:50%;
+  width:54px;height:54px;display:flex;align-items:center;justify-content:center;background:rgba(5,7,13,.6)}
+.w4-quote{padding:14px 22px;border-top:1px solid rgba(255,255,255,.05);font:italic 400 13.5px/1.8 var(--edi);
+  color:var(--dim);letter-spacing:.01em}
+.divider-quote{max-width:920px;margin:56px auto 0;text-align:center;
+  font:900 clamp(22px,2.8vw,34px)/1.8 var(--serif)}
+.divider-quote b{color:var(--gold)}
+@media(max-width:860px){.w4-grid{grid-template-columns:1fr}.w4-vs{padding:14px 0}}
+
+/* ============ ACT V : quotes ============ */
+.sq{max-width:920px;margin:0 auto 34px;padding:34px 40px 30px;position:relative;transition:transform .7s cubic-bezier(.16,1,.3,1),box-shadow .7s}
+.sq:hover{transform:translateY(-4px)}
+.sq .no{position:absolute;top:18px;right:26px;font:italic 600 44px var(--edi);color:transparent;
+  -webkit-text-stroke:1px rgba(245,196,81,.35)}
+.sq .en{font:italic 500 clamp(19px,2.2vw,27px)/1.6 var(--edi);color:var(--ink);max-width:88%}
+.sq .zh{margin-top:18px;color:#aeb7c2;font-size:15.5px;max-width:88%}
+.sq .why{display:inline-block;margin-top:18px;padding:7px 16px;border-radius:20px;font:600 12px var(--serif);
+  color:var(--gold);background:rgba(245,196,81,.08);border:1px solid rgba(245,196,81,.28)}
+.sq .rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent 70%);width:0;margin:20px 0 0;transition:width 1.4s .3s}
+.sq.in-view .rule{width:180px}
+.src-line{max-width:920px;margin:44px auto 0;text-align:center;font:400 13px var(--mono);color:#5d6a7a;letter-spacing:.1em}
+.src-line b{color:var(--gold);font-weight:600}
+
+/* ============ ACT VI ============ */
+.mis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:50px 0 10px}
+.misso{padding:24px 24px 20px;border-radius:16px;border:1px solid rgba(255,107,74,.28);
+  background:linear-gradient(165deg,rgba(255,107,74,.07),rgba(255,255,255,.015));transition:.5s}
+.misso:hover{transform:translateY(-4px)}
+.misso .x{font:800 11px var(--mono);letter-spacing:.3em;color:#ff8a70}
+.misso .claim{margin-top:10px;font:700 16.5px/1.8 var(--serif);color:#e8d5cd}
+.misso .fixwrap{position:relative;margin-top:18px;padding-top:16px;border-top:1px dashed rgba(255,107,74,.3)}
+.misso .fix{filter:blur(7px);opacity:.5;transition:.7s;color:#bfe8d2;font-size:14px;line-height:1.95;user-select:none}
+.misso .fixbtn{position:absolute;inset:16px 0 0;display:flex;align-items:center;justify-content:center;
+  font:600 12px var(--mono);letter-spacing:.2em;color:var(--gold);cursor:pointer;transition:.4s}
+.misso.open .fix{filter:none;opacity:1;user-select:auto}
+.misso.open .fixbtn{opacity:0;pointer-events:none}
+.misso.open{border-color:rgba(61,220,151,.4);background:linear-gradient(165deg,rgba(61,220,151,.06),rgba(255,255,255,.015))}
+@media(max-width:860px){.mis-grid{grid-template-columns:1fr}}
+
+.summary{max-width:920px;margin:60px auto 0;padding:34px 40px}
+.summary .t{font:800 12px var(--mono);letter-spacing:.44em;color:var(--gold);text-transform:uppercase}
+.srow{display:flex;gap:16px;padding:15px 4px;border-top:1px solid rgba(255,255,255,.07);font-size:15.5px;color:#c9cfd8;line-height:1.9}
+.srow:first-of-type{border-top:none}
+.srow .k{flex:none;font:600 12.5px var(--mono);color:var(--gold);padding-top:5px;letter-spacing:.06em;min-width:64px}
+.srow b{color:var(--ink)}
+
+.payoff{max-width:920px;margin:56px auto 0;padding:40px 44px;text-align:center;overflow:visible}
+.payoff .t{font:800 12px var(--mono);letter-spacing:.44em;color:var(--gold);text-transform:uppercase}
+.pay-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:32px 0 8px}
+.pay-col{padding:24px 18px;border-radius:14px;border:1px solid var(--line)}
+.pay-col.old{background:rgba(255,107,74,.05);border-color:rgba(255,107,74,.3)}
+.pay-col.new{background:rgba(245,196,81,.05);border-color:rgba(245,196,81,.4);
+  box-shadow:0 0 44px rgba(245,196,81,.1) inset}
+.pay-col .lab{font:600 11px var(--mono);letter-spacing:.22em;color:var(--dim);text-transform:uppercase}
+.pay-col .amt{font:800 clamp(26px,3.4vw,44px) var(--mono);margin-top:10px}
+.pay-col.old .amt{color:#ff8a70;text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:rgba(255,90,60,.75)}
+.pay-col.new .amt{color:var(--gold);text-shadow:0 0 34px rgba(245,196,81,.5)}
+.pay-col .sub{font:400 11.5px var(--mono);color:#5d6a7a;margin-top:8px;letter-spacing:.06em}
+.pay-btn-row{margin-top:26px;display:flex;justify-content:center;gap:18px;align-items:center;flex-wrap:wrap}
+#grad-stamp{margin:34px auto 2px;display:inline-block;padding:12px 34px;border:3px double var(--gold);color:var(--gold);
+  font:800 21px var(--mono);letter-spacing:.3em;border-radius:10px;transform:rotate(-6deg) scale(2.2);opacity:0;
+  box-shadow:0 0 44px rgba(245,196,81,.28),inset 0 0 18px rgba(245,196,81,.14);transition:all .7s cubic-bezier(.16,1,.3,1);
+  text-shadow:0 0 18px rgba(245,196,81,.55);pointer-events:none}
+#grad-stamp.show{opacity:1;transform:rotate(-6deg) scale(1)}
+.final-quote{max-width:940px;margin:70px auto 0;text-align:center}
+.final-quote .en{font:italic 500 clamp(19px,2.3vw,28px)/1.7 var(--edi);color:var(--ink)}
+.final-quote .zh{margin-top:18px;color:var(--dim);font-size:15.5px}
+.next-card{max-width:920px;margin:76px auto 0;padding:26px 34px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.next-card .t{font:800 11px var(--mono);letter-spacing:.4em;color:var(--dim)}
+.next-card .n{font:700 20px var(--serif)}
+.next-card .n b{color:var(--gold)}
+.next-card .go{margin-left:auto;font:600 12px var(--mono);color:var(--dim);letter-spacing:.14em}
+footer.site{max-width:1120px;margin:0 auto;padding:40px 30px 120px;text-align:center;
+  font:400 12px var(--mono);color:#414c5c;letter-spacing:.14em;line-height:2.4}
+footer.site b{color:#6b788a}
+
+@media(max-width:760px){
+  .chapter-section{padding:110px 20px 130px}
+  .pay-cols{grid-template-columns:1fr}
+  .essence{padding:26px 24px}
+  .qblock{padding-left:18px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg3d"></canvas>
+<div id="tint"></div>
+<div id="mouse-light"></div>
+<div id="vignette"></div>
+
+<!-- ==================== GATE ==================== -->
+<div id="gate">
+  <button id="gate-skip">跳过 →</button>
+  <div class="gate-kicker">HA7CH.SCHOOL — <b>开机</b></div>
+  <div class="gate-term">
+    <div class="term-bar"><i></i><i></i><i></i><span>agent — zsh · 80×24</span></div>
+    <div class="gate-lines" id="gate-lines"></div>
+  </div>
+  <button id="gate-enter">ENTER · 进入课堂</button>
+</div>
+
+<!-- ==================== HUD ==================== -->
+<header id="topbar">
+  <div class="brand">ha7ch<span>.school</span></div>
+  <div id="chg-badge">AI NATIVE · LESSON 01</div>
+  <nav id="pills">
+    <button data-t="prologue" class="on">序</button>
+    <button data-t="act1">Ⅰ</button><button data-t="act2">Ⅱ</button><button data-t="act3">Ⅲ</button>
+    <button data-t="act4">Ⅳ</button><button data-t="act5">Ⅴ</button><button data-t="act6">Ⅵ</button>
+  </nav>
+  <button id="music" title="BGM 开关"><i></i><i></i><i></i><i></i></button>
+</header>
+
+<main>
+
+<!-- ==================== PROLOGUE ==================== -->
+<section class="chapter-section" id="prologue" data-ch="序 · 钩子" data-acc="#f5c451">
+  <div class="watermark">ZERO TOKEN</div>
+  <div class="story-beat">
+    <div class="pro-kicker">AI NATIVE · 第 1 课 <span>— school.ha7ch.com</span></div>
+    <h1>零 <b>Token</b> 设计</h1>
+    <div class="pro-en">Zero-Token Design — when the product stops burning its own tokens</div>
+  </div>
+  <div class="hook-wrap">
+    <div class="story-beat" style="--d:.15s">
+      <div class="hook-lead">先问你一个问题，不用回答，带着它听这节课 ——</div>
+      <div class="hook">▎如果你要做一个 AI 简历产品，用户每改一次简历都要调一次大模型——这笔 token 钱<strong>谁出</strong>？有没有可能，你一分钱推理费都不用付，产品还照样是 AI 产品？</div>
+    </div>
+    <div class="story-beat" style="--d:.3s">
+      <div class="essence glass">
+        <span class="tag">ONE-LINE ESSENCE · 一句话本质</span>
+        <p>零 token 设计 = AI 产品<span class="hl">不再在自己服务器上烧自己的 token 跑推理</span>，而是让用户用他手里已有的 agent（Codex / Claude Code / Cursor）去干活，产品只负责<span class="hl2">把结果接住、漂亮地承载和分发</span>。</p>
+      </div>
+    </div>
+    <div class="story-beat" style="--d:.45s">
+      <div class="chips">
+        <span>Claude Code</span><span>Codex</span><span>Cursor</span><span>OpenCode</span>
+      </div>
+      <div class="scroll-hint">▼ 带着问题往下走</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ACT I ==================== -->
+<section class="chapter-section" id="act1" data-ch="Ⅰ · 旧默认 2023" data-acc="#ff6b4a">
+  <div class="watermark">2023</div>
+  <div class="story-beat">
+    <div class="ch-act">ACT Ⅰ · THE OLD DEFAULT</div>
+    <h2 class="ch-title">一 · 要挑战的旧默认：<em>运行时烧 token</em></h2>
+    <div class="ch-sub">Everyone did it this way — so it must be the only way?</div>
+  </div>
+  <p class="beat-p story-beat">你脑子里大概率有个默认设定，2023 年以来几乎所有 AI SaaS 都这么做：<strong>用户每点一次 → 产品后台调一次模型 → 产品替用户付推理费。</strong>网页里塞个聊天框，每次交互都是一次 API 调用，账单记在产品方头上。</p>
+
+  <div class="story-beat">
+    <div class="widget glass" id="w1">
+      <div class="w-head"><i></i><i></i><i></i><span>ai-resume.pro — AI 简历助手 · 2023 Edition</span></div>
+      <div class="w1-body">
+        <div class="w1-chat" id="w1-chat">
+          <div class="msg a">你好！上传简历，我来帮你改写。<span class="fee">（后台已调用模型 1 次）</span></div>
+          <div class="msg u">帮我把第一段实习经历改得量化一点</div>
+          <div class="msg a">✎ 已重写 · 本次推理 1,655 tokens<span class="fee">你没付费 — 产品方付了</span></div>
+        </div>
+        <div class="w1-meter">
+          <div>API CALLS<b id="w1-calls">2</b></div>
+          <div>TOKENS BURNED<b id="w1-tokens">3,214</b></div>
+          <div class="burn">产品方账单<b id="w1-bill">$0.06</b></div>
+          <div class="w1-month" id="w1-month"></div>
+        </div>
+      </div>
+      <div class="w1-actions">
+        <button class="btn" id="w1-send">用户又改了一次简历 →</button>
+        <span class="w1-hint" id="w1-hint">每点一次 = 一次推理 = 一笔记在<b style="color:#ff8a70">你</b>头上的账</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="story-beat">
+    <div class="qblock">
+      <div class="qen">"That made sense in 2023, because back then, most users didn't really have their own AI workspace."</div>
+      <div class="qzh">2023 年这合理——那时用户手里没有自己的 AI 工作区，产品只能自己包办推理。</div>
+      <span class="qtag">Lawted · Zero-Token Design</span>
+    </div>
+  </div>
+  <p class="beat-p story-beat">他要挑战的不是这个做法本身，而是<span class="hl">「这是唯一做法」这个假设</span>。很多人以为 AI 产品必须自己烧 token，其实那只是用户还没有自己的 agent 时的<strong>过渡形态</strong>。</p>
+</section>
+
+<!-- ==================== ACT II ==================== -->
+<section class="chapter-section" id="act2" data-ch="Ⅱ · 新前提 2026" data-acc="#4da3ff">
+  <div class="watermark">AGENT</div>
+  <div class="story-beat">
+    <div class="ch-act">ACT Ⅱ · THE NEW PREMISE</div>
+    <h2 class="ch-title">二 · 为什么「现在」才成立：<em>用户的 agent 工作区</em></h2>
+    <div class="ch-sub">2023 didn't have this. 2026 does. That's the whole difference.</div>
+  </div>
+  <p class="beat-p story-beat">前提变了。Codex、Claude Code、OpenCode、Cursor 这些本地 agent 已经成熟——</p>
+
+  <div class="story-beat">
+    <div class="widget glass" id="w2">
+      <div class="w-head"><i></i><i></i><i></i><span>agent-workspace — capabilities check</span></div>
+      <div class="w2-body">
+        <div class="w2-out" id="w2-out"><span class="cmd">$ agent --capabilities</span>
+<span class="dim">逐项验证用户工作区能干什么 ↓</span>
+</div>
+        <div class="w2-caps" id="w2-caps">
+          <div class="cap" data-k="dir"><i></i>read your directory<span class="st">○</span></div>
+          <div class="cap" data-k="doc"><i></i>read your documents<span class="st">○</span></div>
+          <div class="cap" data-k="bash"><i></i>run bash commands<span class="st">○</span></div>
+          <div class="cap" data-k="edit"><i></i>edit code<span class="st">○</span></div>
+          <div class="cap" data-k="npx"><i></i>run npx / uvx<span class="st">○</span></div>
+        </div>
+      </div>
+      <div class="w2-actions"><button class="btn" id="w2-run">▶ run all</button></div>
+    </div>
+  </div>
+
+  <div class="story-beat">
+    <div class="qblock">
+      <div class="qen">"They are no longer just chatboxes. They can read your directory, read your documents, run bash commands, edit code, run npx or uvx, and handle a whole workflow inside the user's own environment."</div>
+      <div class="qzh">它们不再是聊天框——能读目录、读文档、跑 bash、改代码、执行 npx/uvx、在用户自己的环境里跑完一整套工作流。</div>
+      <span class="qtag">Lawted · Zero-Token Design</span>
+    </div>
+  </div>
+  <p class="beat-p story-beat">正因为用户手里已经有了这么强的 agent，推理才可能<span class="hl">「外包」给用户</span>。2023 年不成立、2026 年成立——<strong>差的不是模型，是这个前提。</strong></p>
+
+  <div class="aside story-beat">
+    <div class="t">顺带一说 · META</div>
+    <p>你现在上的这所学校，本身就是一个例子——课程校验、更新、读讲义，全是你的 agent（我）在干，school.ha7ch.com <b style="color:var(--gold)">一个 token 都没烧</b>。</p>
+  </div>
+</section>
+
+<!-- ==================== ACT III ==================== -->
+<section class="chapter-section" id="act3" data-ch="Ⅲ · 分工原则" data-acc="#3ddc97">
+  <div class="watermark">HANDOFF</div>
+  <div class="story-beat">
+    <div class="ch-act">ACT Ⅲ · THE DIVISION</div>
+    <h2 class="ch-title">三 · 分工原则：<em>agent 干活，产品接结果</em></h2>
+    <div class="ch-sub">Inference belongs to the agent. Hosting belongs to the product.</div>
+  </div>
+
+  <div class="big-quote story-beat">
+    <div class="zh">「让用户的 <b>agent</b> 干活，让<b>产品</b>接住结果。」</div>
+    <div class="en">"Let the user's agent do the work. Let the product handle the result."</div>
+  </div>
+
+  <p class="beat-p story-beat">推理归 agent，承载归产品。拿作者自己的产品 <strong>CV.pro</strong>（一个简历产品）拆开看分工——用户复制一段快速启动 prompt（里面含 npx 命令），贴进自己的 agent；agent 跑命令、解析文件、处理错误、生成结构化 schema，推回 CV.pro：</p>
+
+  <div class="story-beat">
+    <div class="widget glass" id="w3">
+      <div class="w-head"><i></i><i></i><i></i><span>cv.pro — zero-token pipeline</span></div>
+      <div class="w3-body">
+        <div class="w3-side agent" id="w3-agent">
+          <h4><i></i>用户的 AGENT · 推理侧</h4>
+          <div class="trow" data-s="0"><span class="n">01</span>简历解析</div>
+          <div class="trow" data-s="1"><span class="n">02</span>按 JD 定制内容</div>
+          <div class="trow" data-s="2"><span class="n">03</span>内容改写</div>
+          <div class="trow" data-s="3"><span class="n">04</span>跑 npx · 处理报错 · 生成 schema 推回</div>
+        </div>
+        <div class="w3-mid" id="w3-mid">
+          <div class="w3-arrow">⟶</div>
+          <div id="w3-chip">{ resume: schema ✓ }</div>
+        </div>
+        <div class="w3-side prod" id="w3-prod">
+          <h4><i></i>产品 · 承载侧</h4>
+          <div class="trow" data-s="0"><span class="n">01</span>schema 定义</div>
+          <div class="trow" data-s="1"><span class="n">02</span>数据库</div>
+          <div class="trow" data-s="2"><span class="n">03</span>URL 视图 · 版本</div>
+          <div class="trow" data-s="3"><span class="n">04</span>渲染 · 分发</div>
+          <div class="w3-cv" id="w3-cv">
+            <div class="nm"> HEXIN XIANG</div>
+            <div class="rl">cv.pro/r/hexin · v3 · 2 min ago</div>
+            <div class="ln m"></div><div class="ln s"></div><div class="ln"></div>
+          </div>
+        </div>
+      </div>
+      <div class="w3-actions">
+        <button class="btn" id="w3-run">▶ 跑一遍工作流</button>
+        <span class="w3-note">产品侧从头到尾没调过一次模型 — 但解析、定制、改写这些活儿全是 AI 干的</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="dtable story-beat">
+    <tr><th class="a">归用户的 agent · 推理侧</th><th class="b">归产品 · 承载侧</th></tr>
+    <tr><td>简历解析</td><td>schema 定义</td></tr>
+    <tr><td>按 JD 定制内容</td><td>数据库</td></tr>
+    <tr><td>内容改写</td><td>URL 视图、版本</td></tr>
+    <tr><td>跑 npx 命令、处理报错、生成结构化数据并推回来</td><td>渲染、分发</td></tr>
+  </table>
+</section>
+
+<!-- ==================== ACT IV ==================== -->
+<section class="chapter-section" id="act4" data-ch="Ⅳ · BYOK ≠ 零 Token" data-acc="#c9a2ff">
+  <div class="watermark">BYOK?</div>
+  <div class="story-beat">
+    <div class="ch-act">ACT Ⅳ · NOT BYOK · 重点</div>
+    <h2 class="ch-title">四 · 最容易混的点：<em>它和 BYOK 不是一回事</em></h2>
+    <div class="ch-sub">Same bill? No. Completely different burden.</div>
+  </div>
+  <p class="beat-p story-beat">BYOK（Bring Your Own Key，用户自带 API key）：用户去申请 key、做配置、搞懂计费、把 key 填进你的产品。原文说得很直白——</p>
+
+  <div class="story-beat">
+    <div class="widget glass" id="w4">
+      <div class="w-head"><i></i><i></i><i></i><span>two roads — who carries the burden?</span></div>
+      <div class="w4-grid">
+        <div class="w4-card byok">
+          <div class="w4-badge"><i>✗</i>BYOK · 自带钥匙</div>
+          <div class="w4-sub">// 2023 的惯性延长线</div>
+          <div class="w4-step"><span class="no">01</span><span>去 platform.openai.com 注册、申请 API key</span></div>
+          <div class="w4-step"><span class="no">02</span><span>复制密钥：<span class="sk" id="w4-sk">sk-proj-9xK2f••••••••••••</span><span class="sk-note" id="w4-skn">钥匙交到了别人产品的设置页里</span></span></div>
+          <div class="w4-step"><span class="no">03</span><span>搞懂 token 计费模型、设充值上限</span></div>
+          <div class="w4-step"><span class="no">04</span><span>在产品设置页把 key 填进去、测试连通</span></div>
+          <div class="w4-verdict">账单 <span class="dim">→</span> 转给用户<br>UX 负担 <span class="dim">→</span> 仍全部压在用户身上</div>
+        </div>
+        <div class="w4-vs"><span>VS</span></div>
+        <div class="w4-card zero">
+          <div class="w4-badge"><i>✓</i>零 TOKEN · 对接已有工具</div>
+          <div class="w4-sub">// 2026 的新前提</div>
+          <div class="w4-step"><span class="no">01</span><span>复制一段快速启动 prompt（里面含 npx 命令）</span></div>
+          <div class="w4-step"><span class="no">02</span><span>贴进你本来就在用的 Claude Code / Codex / Cursor</span></div>
+          <div class="w4-step"><span class="no">03</span><span>agent 干活 · 产品接结果。完。</span></div>
+          <div class="w4-verdict">推理 <span class="dim">→</span> 搬进用户工作区<br>UX 负担 <span class="dim">→</span> 落在 agent 侧，用户零感知</div>
+        </div>
+      </div>
+      <div class="w4-quote">"Zero-token design is not about asking users to configure a key inside my product. It is about letting my product work with the tools they already use."</div>
+    </div>
+  </div>
+
+  <div class="story-beat">
+    <div class="qblock">
+      <div class="qen">"Honestly, that's just transferring the bill to the customer, but the UX is still heavy."</div>
+      <div class="qzh">BYOK 只是把账单转给了用户，UX 负担还全在用户身上。</div>
+      <span class="qtag">Lawted · on BYOK</span>
+    </div>
+  </div>
+  <div class="divider-quote story-beat">一句话记住分界：<br>BYOK 转移<b>账单</b>，零 token 转移<b>推理的位置</b>。</div>
+</section>
+
+<!-- ==================== ACT V ==================== -->
+<section class="chapter-section" id="act5" data-ch="Ⅴ · 原文共读" data-acc="#e8dcc0">
+  <div class="watermark">SOURCE</div>
+  <div class="story-beat">
+    <div class="ch-act">ACT Ⅴ · READ THE SOURCE</div>
+    <h2 class="ch-title">五 · 原文共读</h2>
+    <div class="ch-sub">Zero-Token Design — Lawted, 2026-05-07. 全文很短，值得通读。</div>
+  </div>
+
+  <div style="margin-top:56px">
+    <div class="sq glass story-beat">
+      <div class="no">1</div>
+      <div class="en">"I'm not saying the product doesn't need AI. What I mean is: an AI product doesn't always need to burn its own tokens at runtime."</div>
+      <div class="zh">我不是说产品不需要 AI——而是：AI 产品并不总需要在运行时烧自己的 token。</div>
+      <span class="why">开篇第一句，就防住了最大误读</span>
+      <div class="rule"></div>
+    </div>
+    <div class="sq glass story-beat">
+      <div class="no">2</div>
+      <div class="en">"It is about letting my product work with the tools they already use, like Codex, Claude Code, OpenCode, or Cursor."</div>
+      <div class="zh">让产品去对接用户本来就在用的工具。</div>
+      <span class="why">和 BYOK 的分界线</span>
+      <div class="rule"></div>
+    </div>
+    <div class="sq glass story-beat">
+      <div class="no">3</div>
+      <div class="en">"Should your product do all the reasoning by itself? Or should it become a system that can be operated by agents, capture the result, and distribute it beautifully? That's the difference."</div>
+      <div class="zh">你的产品该自己做全部推理，还是变成一个能被 agent 操作、捕获结果并漂亮分发的系统？差别就在这。</div>
+      <span class="why">全文收尾 — 也是这节课真正的落点</span>
+      <div class="rule"></div>
+    </div>
+  </div>
+  <div class="src-line story-beat">SOURCE — <b>Lawted《Zero-Token Design》</b> · 2026-05-07 · school.ha7ch.com/material</div>
+</section>
+
+<!-- ==================== ACT VI ==================== -->
+<section class="chapter-section" id="act6" data-ch="Ⅵ · 误解与小结" data-acc="#ffc857">
+  <div class="watermark">GRADUATE</div>
+  <div class="story-beat">
+    <div class="ch-act">ACT Ⅵ · MYTHS & GRADUATION</div>
+    <h2 class="ch-title">六 · 三个常见误解，<em>听到就纠正</em> & 小结</h2>
+    <div class="ch-sub">Three myths to unlearn — then close the bill.</div>
+  </div>
+
+  <div class="mis-grid">
+    <div class="misso story-beat">
+      <div class="x">❌ MYTH 01</div>
+      <div class="claim">「零 token = 不需要 AI / 不算 AI 产品」</div>
+      <div class="fixwrap">
+        <div class="fix">✓ 作者开篇就堵了这句。CV.pro 依然是 AI 产品——解析、定制、改写全是 AI 干的，只是推理不发生在它自己服务器上。</div>
+        <div class="fixbtn">点开纠正</div>
+      </div>
+    </div>
+    <div class="misso story-beat" style="--d:.12s">
+      <div class="x">❌ MYTH 02</div>
+      <div class="claim">「零 token = BYOK 换个说法」</div>
+      <div class="fixwrap">
+        <div class="fix">✓ 账单转给用户 ≠ 推理搬到用户工作区，UX 负担的落点完全不同（见第四幕）。</div>
+        <div class="fixbtn">点开纠正</div>
+      </div>
+    </div>
+    <div class="misso story-beat" style="--d:.24s">
+      <div class="x">❌ MYTH 03</div>
+      <div class="claim">「零 token 只是个省钱技巧」</div>
+      <div class="fixwrap">
+        <div class="fix">✓ 省钱只是结果，本质是产品定位变了：你不做推理引擎，你做 agent 生态里的承接与分发层。</div>
+        <div class="fixbtn">点开纠正</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary glass story-beat">
+    <div class="t">SUMMARY · 小结</div>
+    <div class="srow"><span class="k">旧默认</span><span>产品烧自己的 token 包办推理 → 2023 年合理，因为用户没有自己的工作区</span></div>
+    <div class="srow"><span class="k">新前提</span><span>Codex / Claude Code / Cursor 成熟，能跑完整工作流</span></div>
+    <div class="srow"><span class="k">内核</span><span><b>agent 干活，产品接结果</b>；CV.pro = 推理在用户 agent、承载在产品</span></div>
+    <div class="srow"><span class="k">分界</span><span>BYOK 转账单，零 token 对接用户已有工具</span></div>
+    <div class="srow"><span class="k">落点</span><span>从「自己做推理」到「被 agent 操作、接住并分发结果」</span></div>
+  </div>
+
+  <div class="payoff glass story-beat">
+    <div class="t">FINALE · 把幕 Ⅰ 的账结一下</div>
+    <div class="pay-cols">
+      <div class="pay-col old">
+        <div class="lab">2023 模式 · 产品方付</div>
+        <div class="amt">$396,000 / 月</div>
+        <div class="sub">4,000 用户 × 30 次修改/天 × $0.11/次</div>
+      </div>
+      <div class="pay-col new">
+        <div class="lab">零 Token 模式 · 推理在用户侧</div>
+        <div class="amt" id="pay-amt">$0.00 / 月</div>
+        <div class="sub">产品只负责接住、承载、分发</div>
+      </div>
+    </div>
+    <div class="pay-btn-row">
+      <button class="btn" id="pay-btn">让 agent 接管推理 →</button>
+      <span class="w3-note" id="pay-note">同一门生意，两种架构，两种命运</span>
+    </div>
+    <div id="grad-stamp">ZERO-TOKEN · 毕业 ✓</div>
+  </div>
+
+  <div class="final-quote story-beat">
+    <div class="en">"Should your product do all the reasoning by itself? Or should it become a system that can be operated by agents, capture the result, and distribute it beautifully?"</div>
+    <div class="zh">这不是省钱技巧，是产品架构与定位的转变——从「自己做全部推理的系统」，变成「被 agent 操作、捕获并分发结果的系统」。</div>
+  </div>
+
+  <div class="next-card glass story-beat">
+    <div>
+      <div class="t">NEXT · 下一课</div>
+      <div class="n">第 2 课 · <b>ChatGPT 之后，活儿怎么变</b></div>
+    </div>
+    <div class="go">ai-native/02 →</div>
+  </div>
+</section>
+
+<footer class="site">
+  AI NATIVE · 第 1 课 · 零 TOKEN DESIGN — LESSON NOTES<br>
+  SOURCE: LAWTED《ZERO-TOKEN DESIGN》2026-05-07 · 本页 runtime token 消耗 $0.00<br>
+  SCHOOL.HA7CH.COM — 这所学校本身，就是零 token 设计的活例子
+</footer>
+
+</main>
+
+<!-- ==================== BOTTOM HUD ==================== -->
+<div id="bottombar">
+  <div id="pbar"><i></i></div>
+  <div class="bb-row">
+    <button id="reboot">⏏ 重温开机</button>
+    <div id="hotbar">
+      <button data-t="prologue" class="on">序</button>
+      <button data-t="act1">Ⅰ</button><button data-t="act2">Ⅱ</button><button data-t="act3">Ⅲ</button>
+      <button data-t="act4">Ⅳ</button><button data-t="act5">Ⅴ</button><button data-t="act6">Ⅵ</button>
+    </div>
+    <div id="rb" title="这个网页本身：零次模型调用">RUNTIME TOKEN BILL <b>$0.00</b> <span class="tick">✓</span></div>
+  </div>
+</div>
+
+<div id="achv"></div>
+
+<script>
+(function(){
+'use strict';
+/* ============ capture mode ============ */
+var CAPTURE = new URLSearchParams(location.search).has('capture') || /Headless/i.test(navigator.userAgent);
+if (CAPTURE) document.documentElement.classList.add('capture');
+var $ = function(s){ return document.querySelector(s); };
+var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+/* ============ gate ============ */
+var gate = $('#gate'), glines = $('#gate-lines');
+var GATE_LINES = [
+  {t:'$ npx zero-token-design@lesson-01', c:'cmd', type:true},
+  {t:'▸ scanning workspace ................ ok', c:'dim'},
+  {t:'▸ agent workspace detected ......... Claude Code / Codex / Cursor', c:''},
+  {t:'▸ capabilities ..................... read · bash · edit · npx / uvx', c:''},
+  {t:'▸ runtime inference cost ........... $0.00', c:'ok'},
+  {t:'', c:''},
+  {t:'✓ READY — 0 tokens billed. 欢迎上课。', c:'gold'}
+];
+function runGate(instant){
+  glines.innerHTML = '';
+  var idx = 0;
+  function nextLine(){
+    if (idx >= GATE_LINES.length){ gate.classList.add('entered'); return; }
+    var L = GATE_LINES[idx++];
+    var div = document.createElement('div');
+    if (L.c) div.className = L.c;
+    glines.appendChild(div);
+    if (instant || !L.type){
+      div.textContent = L.t;
+      setTimeout(nextLine, instant ? 40 : 300 + Math.random()*260);
+    } else {
+      var i = 0, cur = document.createElement('span'); cur.className='cursor';
+      div.appendChild(cur);
+      var tick = setInterval(function(){
+        cur.insertAdjacentText('beforebegin', L.t.charAt(i++));
+        if (i >= L.t.length){ clearInterval(tick); cur.remove(); setTimeout(nextLine, 260); }
+      }, 26);
+    }
+  }
+  nextLine();
+}
+function closeGate(){
+  if (gate.classList.contains('off')) return;
+  gate.classList.add('off');
+  bootAudio();
+}
+$('#gate-skip').addEventListener('click', closeGate);
+$('#gate-enter').addEventListener('click', closeGate);
+window.addEventListener('keydown', function(e){ if (e.key === 'Enter') closeGate(); });
+$('#reboot').addEventListener('click', function(){
+  gate.classList.remove('off','entered');
+  runGate(true);
+});
+if (CAPTURE){ gate.classList.add('off'); } else { runGate(false); }
+
+/* ============ story beats ============ */
+var beats = $$('.story-beat');
+if (CAPTURE){
+  beats.forEach(function(b){ b.classList.add('in-view'); });
+} else {
+  var bio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('in-view'); bio.unobserve(e.target); } });
+  }, {threshold:.14});
+  beats.forEach(function(b){ bio.observe(b); });
+}
+
+/* ============ chapters ============ */
+var CH = {
+  prologue:{badge:'序 · 钩子', acc:'#f5c451', tint:'rgba(245,196,81,.10)'},
+  act1:{badge:'Ⅰ · 旧默认 2023', acc:'#ff6b4a', tint:'rgba(255,107,74,.10)'},
+  act2:{badge:'Ⅱ · 新前提 2026', acc:'#4da3ff', tint:'rgba(77,163,255,.10)'},
+  act3:{badge:'Ⅲ · 分工原则', acc:'#3ddc97', tint:'rgba(61,220,151,.10)'},
+  act4:{badge:'Ⅳ · BYOK ≠ 零Token', acc:'#c9a2ff', tint:'rgba(201,162,255,.10)'},
+  act5:{badge:'Ⅴ · 原文共读', acc:'#e8dcc0', tint:'rgba(232,220,192,.09)'},
+  act6:{badge:'Ⅵ · 误解与小结', acc:'#ffc857', tint:'rgba(255,200,87,.10)'}
+};
+var curCh = 'prologue';
+function setChapter(id){
+  if (!CH[id] || curCh === id) return;
+  curCh = id;
+  var c = CH[id];
+  $('#chg-badge').textContent = 'AI NATIVE · L01 — ' + c.badge;
+  document.documentElement.style.setProperty('--tint', c.tint);
+  $$('#pills button,#hotbar button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-t') === id);
+  });
+  setThreeColor(c.acc);
+  setMood(id);
+}
+if (!CAPTURE){
+  var cio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting) setChapter(e.target.id); });
+  }, {threshold:.28});
+  $$('.chapter-section').forEach(function(s){ cio.observe(s); });
+} else {
+  var c = CH.prologue;
+  $('#chg-badge').textContent = 'AI NATIVE · L01 — ' + c.badge;
+}
+$$('#pills button,#hotbar button').forEach(function(b){
+  b.addEventListener('click', function(){
+    var t = document.getElementById(b.getAttribute('data-t'));
+    if (t) t.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+/* ============ progress ============ */
+var pbarI = document.querySelector('#pbar i');
+function onScroll(){
+  var h = document.documentElement.scrollHeight - window.innerHeight;
+  var p = h > 0 ? Math.min(1, window.scrollY / h) : 0;
+  pbarI.style.width = (p*100).toFixed(2) + '%';
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+onScroll();
+
+/* ============ mouse light ============ */
+if (!CAPTURE){
+  window.addEventListener('mousemove', function(e){
+    document.documentElement.style.setProperty('--mx', (e.clientX / window.innerWidth * 100).toFixed(1) + '%');
+    document.documentElement.style.setProperty('--my', (e.clientY / window.innerHeight * 100).toFixed(1) + '%');
+  }, {passive:true});
+}
+
+/* ============ achievements ============ */
+var achvWrap = $('#achv');
+function achv(zh){
+  if (CAPTURE) return;
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = '<small>🏆 ACHIEVEMENT UNLOCKED</small><div>' + zh + '</div>';
+  achvWrap.appendChild(t);
+  setTimeout(function(){ t.classList.add('bye'); }, 3400);
+  setTimeout(function(){ t.remove(); }, 4000);
+}
+
+/* ============ ACT I : burn chat ============ */
+var W1_ASKS = ['把第二段经历改得更量化一点','这段太长，压到两行以内','按 STAR 法则重写第一段','针对这份 JD 再定制一版','语气自信一点，但别浮夸'];
+var W1_TOK  = [1842, 967, 2204, 1588, 1103];
+var w1 = {calls:2, tokens:3214, bill:0.06, i:0, chat:$('#w1-chat')};
+function w1Render(flash){
+  $('#w1-calls').textContent = w1.calls;
+  $('#w1-tokens').textContent = w1.tokens.toLocaleString('en-US');
+  var b = $('#w1-bill');
+  b.textContent = '$' + w1.bill.toFixed(2);
+  if (flash){ b.classList.remove('hot'); void b.offsetWidth; b.classList.add('hot'); }
+}
+function w1Add(cls, html){
+  var d = document.createElement('div');
+  d.className = 'msg ' + cls;
+  d.innerHTML = html;
+  w1.chat.appendChild(d);
+  w1.chat.scrollTop = w1.chat.scrollHeight;
+}
+$('#w1-send').addEventListener('click', function(){
+  if (w1.i >= W1_ASKS.length){
+    $('#w1-hint').innerHTML = '← 这个按钮永远在烧钱。这就是 2023 的默认设定。';
+    return;
+  }
+  var btn = this; btn.disabled = true;
+  w1Add('u', W1_ASKS[w1.i]);
+  setTimeout(function(){
+    var tok = W1_TOK[w1.i], cost = tok * 60 / 1e6;
+    w1.calls++; w1.tokens += tok; w1.bill += cost;
+    w1Add('a', '✎ 已处理 · 本次推理 ' + tok.toLocaleString('en-US') + ' tokens<span class="fee">你没付费 — 产品方付了 $' + cost.toFixed(2) + '</span>');
+    w1Render(true);
+    w1.i++;
+    btn.disabled = false;
+    if (w1.i === W1_ASKS.length){
+      var m = $('#w1-month');
+      m.innerHTML = '× 4,000 用户 × 30 次/天<br>≈ <b>$396,000 / 月</b>';
+      m.classList.add('show');
+      achv('替用户心疼了一下 · 烧钱体验卡');
+    }
+  }, 620);
+});
+if (CAPTURE){
+  w1.calls = 5; w1.tokens = 10918; w1.bill = 0.50; w1.i = 5;
+  w1Add('u', W1_ASKS[0]); w1Add('a', '✎ 已重写 · 本次推理 1,842 tokens<span class="fee">你没付费 — 产品方付了 $0.11</span>');
+  w1Add('u', W1_ASKS[1]); w1Add('a', '✎ 已压缩 · 本次推理 967 tokens<span class="fee">你没付费 — 产品方付了 $0.06</span>');
+  w1Add('u', W1_ASKS[2]); w1Add('a', '✎ 已重写 · 本次推理 2,204 tokens<span class="fee">你没付费 — 产品方付了 $0.13</span>');
+  w1Render(false);
+  var m1 = $('#w1-month');
+  m1.innerHTML = '× 4,000 用户 × 30 次/天<br>≈ <b>$396,000 / 月</b>';
+  m1.classList.add('show');
+  $('#w1-hint').innerHTML = '← 这个按钮永远在烧钱。这就是 2023 的默认设定。';
+}
+
+/* ============ ACT II : agent terminal ============ */
+var W2_STEPS = [
+  {k:'dir',  cmd:'$ ls ~/cv', out:'resume-2024.pdf   projects/   jd-notes.md'},
+  {k:'doc',  cmd:'$ pdftotext resume-2024.pdf -', out:'parsed 2 pages · 1,847 words · 0 errors'},
+  {k:'bash', cmd:'$ bash normalize.sh', out:'✓ done in 1.2s — exit 0'},
+  {k:'edit', cmd:'$ apply patch resume.typ', out:'+ 量化了 3 处成果   - 删掉 2 段空话'},
+  {k:'npx',  cmd:'$ npx @cv/pro-sync', out:'✓ schema pushed → cv.pro/r/hexin'}
+];
+var w2out = $('#w2-out');
+function w2Line(html){
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  w2out.appendChild(d);
+  w2out.scrollTop = w2out.scrollHeight;
+}
+function w2Mark(k){
+  var c = document.querySelector('.cap[data-k="' + k + '"]');
+  if (c){ c.classList.add('done'); c.querySelector('.st').textContent = '✓'; }
+}
+var w2Busy = false;
+$('#w2-run').addEventListener('click', function(){
+  if (w2Busy) return; w2Busy = true;
+  var i = 0;
+  (function step(){
+    if (i >= W2_STEPS.length){
+      w2Line('<span class="gold">— 它不再是聊天框。推理可以外包了。</span>');
+      achv('工作区就绪 · Agent Workspace Ready');
+      w2Busy = false;
+      return;
+    }
+    var s = W2_STEPS[i++];
+    w2Line('<span class="cmd">' + s.cmd + '</span>');
+    setTimeout(function(){
+      w2Line('<span class="ok">' + s.out + '</span>');
+      w2Mark(s.k);
+      setTimeout(step, 240);
+    }, 420);
+  })();
+});
+if (CAPTURE){
+  W2_STEPS.forEach(function(s){ w2Line('<span class="cmd">' + s.cmd + '</span>'); w2Line('<span class="ok">' + s.out + '</span>'); w2Mark(s.k); });
+  w2Line('<span class="gold">— 它不再是聊天框。推理可以外包了。</span>');
+}
+
+/* ============ ACT III : pipeline ============ */
+var w3Busy = false;
+$('#w3-run').addEventListener('click', function(){
+  if (w3Busy) return; w3Busy = true;
+  var aRows = $$('#w3-agent .trow'), pRows = $$('#w3-prod .trow'), mid = $('#w3-mid'), chip = $('#w3-chip');
+  aRows.concat(pRows).forEach(function(r){ r.classList.remove('done'); });
+  $('#w3-cv').classList.remove('show');
+  var i = 0;
+  (function step(){
+    if (i < aRows.length){
+      aRows[i].classList.add('done'); i++;
+      setTimeout(step, 560);
+    } else {
+      mid.classList.add('hot');
+      chip.classList.remove('land'); chip.classList.add('fly');
+      setTimeout(function(){
+        chip.classList.remove('fly'); chip.classList.add('land');
+        pRows.forEach(function(r, j){ setTimeout(function(){ r.classList.add('done'); }, j * 300); });
+        setTimeout(function(){
+          $('#w3-cv').classList.add('show');
+          mid.classList.remove('hot');
+          achv('分工大师 · Handoff Master');
+          w3Busy = false;
+        }, 1300);
+      }, 1050);
+    }
+  })();
+});
+if (CAPTURE){
+  $$('#w3-agent .trow,#w3-prod .trow').forEach(function(r){ r.classList.add('done'); });
+  $('#w3-cv').classList.add('show');
+}
+
+/* ============ ACT IV : strike the key ============ */
+function w4Strike(){
+  var sk = $('#w4-sk');
+  if (sk && !sk.classList.contains('struck')){
+    sk.classList.add('struck');
+    setTimeout(function(){ var n = $('#w4-skn'); if (n) n.classList.add('show'); }, 750);
+  }
+}
+if (CAPTURE){ w4Strike(); }
+else {
+  var sio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting){ w4Strike(); sio.disconnect(); } });
+  }, {threshold:.4});
+  sio.observe($('#w4'));
+}
+
+/* ============ ACT VI : myths + payoff ============ */
+$$('.misso').forEach(function(m){
+  m.addEventListener('click', function(){ m.classList.add('open'); });
+});
+if (CAPTURE){ $$('.misso').forEach(function(m){ m.classList.add('open'); }); }
+
+var paid = false;
+$('#pay-btn').addEventListener('click', function(){
+  if (paid) return; paid = true;
+  var amt = $('#pay-amt'), btn = this;
+  btn.disabled = true; btn.textContent = '✓ 已接管 — 0 tokens billed';
+  var note = $('#pay-note'); if (note) note.textContent = '推理搬进了用户的工作区。产品只接结果。';
+  var from = 396000, t0 = null;
+  function roll(ts){
+    if (!t0) t0 = ts;
+    var p = Math.min(1, (ts - t0) / 1400);
+    var e = 1 - Math.pow(1 - p, 3);
+    amt.textContent = '$' + Math.round(from * (1 - e)).toLocaleString('en-US') + ' / 月';
+    if (p < 1) requestAnimationFrame(roll);
+    else {
+      amt.textContent = '$0.00 / 月';
+      $('#grad-stamp').classList.add('show');
+      achv('ZERO-TOKEN 毕业 · Class Complete');
+    }
+  }
+  requestAnimationFrame(roll);
+});
+if (CAPTURE){
+  $('#pay-btn').disabled = true;
+  $('#pay-btn').textContent = '✓ 已接管 — 0 tokens billed';
+  $('#grad-stamp').classList.add('show');
+  var pn = $('#pay-note'); if (pn) pn.textContent = '推理搬进了用户的工作区。产品只接结果。';
+}
+
+/* ============ audio (web audio synth) ============ */
+var AC = null, master = null, mFilter = null, musicOn = true, moodTimer = null;
+var MOODS = {
+  prologue:{f:2400, ch:[220.00,261.63,329.63], root:220},
+  act1:{f:900,  ch:[146.83,174.61,220.00], root:146.83},
+  act2:{f:3200, ch:[130.81,196.00,261.63], root:261.63},
+  act3:{f:2800, ch:[174.61,220.00,261.63], root:220},
+  act4:{f:1600, ch:[155.56,196.00,233.08], root:196},
+  act5:{f:2200, ch:[164.81,207.65,246.94], root:207.65},
+  act6:{f:3400, ch:[130.81,164.81,196.00,261.63], root:261.63}
+};
+var moodId = 'prologue';
+function bootAudio(){
+  if (AC || CAPTURE) return;
+  try{
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    mFilter = AC.createBiquadFilter(); mFilter.type = 'lowpass'; mFilter.frequency.value = 200;
+    var comp = AC.createDynamicsCompressor();
+    master = AC.createGain(); master.gain.value = 0;
+    master.connect(mFilter); mFilter.connect(comp); comp.connect(AC.destination);
+    master.gain.linearRampToValueAtTime(musicOn ? 0.16 : 0, AC.currentTime + 3);
+    mFilter.frequency.linearRampToValueAtTime(MOODS[moodId].f, AC.currentTime + 3);
+    scheduleMood();
+    $('#music').classList.toggle('on', musicOn);
+  }catch(e){}
+}
+function scheduleMood(){
+  if (moodTimer) clearTimeout(moodTimer);
+  if (!AC) return;
+  var m = MOODS[moodId];
+  m.ch.forEach(function(f, i){
+    var o = AC.createOscillator(), g = AC.createGain();
+    o.type = i === 0 ? 'triangle' : 'sine';
+    o.frequency.value = f; o.detune.value = (i - 1) * 6;
+    g.gain.setValueAtTime(0, AC.currentTime);
+    g.gain.linearRampToValueAtTime(0.05 / (i + 1), AC.currentTime + 2.2);
+    g.gain.linearRampToValueAtTime(0.012 / (i + 1), AC.currentTime + 6.5);
+    g.gain.linearRampToValueAtTime(0, AC.currentTime + 9.5);
+    o.connect(g); g.connect(master);
+    o.start(AC.currentTime + i * 0.14); o.stop(AC.currentTime + 10);
+  });
+  var pluck = AC.createOscillator(), pg = AC.createGain();
+  pluck.type = 'triangle'; pluck.frequency.value = m.root * 2;
+  pg.gain.setValueAtTime(0, AC.currentTime + 4);
+  pg.gain.linearRampToValueAtTime(0.05, AC.currentTime + 4.02);
+  pg.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + 6.4);
+  pluck.connect(pg); pg.connect(master);
+  pluck.start(AC.currentTime + 4); pluck.stop(AC.currentTime + 6.5);
+  moodTimer = setTimeout(scheduleMood, 9000);
+}
+function setMood(id){
+  moodId = id;
+  if (AC && mFilter){
+    mFilter.frequency.cancelScheduledValues(AC.currentTime);
+    mFilter.frequency.linearRampToValueAtTime(MOODS[id].f, AC.currentTime + 1.4);
+  }
+}
+window.addEventListener('pointerdown', function once(){ bootAudio(); }, {once:true});
+$('#music').addEventListener('click', function(){
+  musicOn = !musicOn;
+  this.classList.toggle('on', musicOn);
+  if (AC && master) master.gain.linearRampToValueAtTime(musicOn ? 0.16 : 0, AC.currentTime + 0.6);
+});
+
+/* ============ three.js background ============ */
+var threeTarget = null;
+function setThreeColor(hex){ threeTarget = hex; }
+(function(){
+  if (!window.THREE) return;
+  try{
+    var canvas = $('#bg3d');
+    var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x05070d, 1);
+    var scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x05070d, 0.042);
+    var camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 16);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    var dl = new THREE.DirectionalLight(0xffffff, 0.85); dl.position.set(6, 9, 10); scene.add(dl);
+    var group = new THREE.Group(); scene.add(group);
+    var geo = new THREE.BoxGeometry(1, 1, 1);
+    var matA = new THREE.MeshLambertMaterial({color:0xf5c451, transparent:true, opacity:.8});
+    var matB = new THREE.MeshLambertMaterial({color:0x8a6f2a, transparent:true, opacity:.55});
+    var matC = new THREE.MeshLambertMaterial({color:0x1c2434, transparent:true, opacity:.85});
+    var matE = new THREE.LineBasicMaterial({color:0xf5c451, transparent:true, opacity:.4});
+    var cubes = [], N = 110;
+    for (var i = 0; i < N; i++){
+      var pick = Math.random();
+      var mat = pick < .3 ? matA : (pick < .6 ? matB : matC);
+      var c = new THREE.Mesh(geo, mat);
+      var s = 0.22 + Math.random() * 0.85;
+      c.scale.set(s, s, s);
+      c.position.set((Math.random()-.5)*56, (Math.random()-.5)*36, (Math.random()-.5)*22 - 2);
+      c.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
+      c.userData = {
+        bx: c.position.x, by: c.position.y,
+        rx: (Math.random()-.5)*0.006, ry: (Math.random()-.5)*0.008,
+        ph: Math.random()*Math.PI*2, sp: 0.2 + Math.random()*0.5
+      };
+      if (Math.random() < .45){
+        var e = new THREE.LineSegments(new THREE.EdgesGeometry(geo), matE);
+        e.scale.set(s*1.02, s*1.02, s*1.02);
+        c.add(e);
+      }
+      group.add(c); cubes.push(c);
+    }
+    var tA = new THREE.Color(0xf5c451), tB = new THREE.Color(0x8a6f2a), tC = new THREE.Color(0x1c2434), tE = new THREE.Color(0xf5c451);
+    setThreeColor = function(hex){
+      tA.set(hex); tB.set(hex).multiplyScalar(.42); tC.set(hex).multiplyScalar(.16).lerp(new THREE.Color(0x141a28), .72); tE.set(hex);
+    };
+    var mx = 0, my = 0;
+    if (!CAPTURE){
+      window.addEventListener('mousemove', function(e){
+        mx = e.clientX / window.innerWidth * 2 - 1;
+        my = e.clientY / window.innerHeight * 2 - 1;
+      }, {passive:true});
+    }
+    var t = 0, scrollP = 0;
+    window.addEventListener('scroll', function(){ scrollP = window.scrollY / Math.max(1, document.documentElement.scrollHeight - window.innerHeight); }, {passive:true});
+    window.addEventListener('resize', function(){
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    (function loop(){
+      requestAnimationFrame(loop);
+      t += 0.016;
+      matA.color.lerp(tA, 0.02); matB.color.lerp(tB, 0.02); matC.color.lerp(tC, 0.02); matE.color.lerp(tE, 0.02);
+      for (var j = 0; j < cubes.length; j++){
+        var u = cubes[j].userData;
+        cubes[j].rotation.x += u.rx; cubes[j].rotation.y += u.ry;
+        cubes[j].position.y = u.by + Math.sin(t * u.sp + u.ph) * 0.9;
+        cubes[j].position.x = u.bx + Math.cos(t * u.sp * 0.6 + u.ph) * 0.5;
+      }
+      group.position.y = scrollP * 5;
+      group.rotation.y = scrollP * 0.5 + mx * 0.04;
+      camera.position.x += (mx * 1.3 - camera.position.x) * 0.04;
+      camera.position.y += (-my * 0.8 - camera.position.y) * 0.04;
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+    })();
+  }catch(e){}
+})();
+
+/* ============ capture: expose page height ============ */
+if (CAPTURE){
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      document.body.setAttribute('data-page-h', document.documentElement.scrollHeight);
+    }, 2600);
+  });
+}
+})();
+</script>
+</body>
+</html>
