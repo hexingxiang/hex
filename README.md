@@ -1,14 +1,16 @@
-# AI Native · 课程讲义页
+# hex.school · AI Native 课程笔记
 
-单文件电影级叙事网页版课程讲义，每课一页 HTML，双击即看，零构建零依赖（CDN）。
+单文件电影级叙事网页版课程笔记，每课一页 HTML，双击即看，零构建零依赖（CDN）。
 
-在线阅读：**https://hexingxiang.github.io/ai-native/**
+在线阅读：**https://hexingxiang.github.io/hex/**
+
+> 原版课程：**ha7ch.school** — 本仓库是 hex 的学习笔记版，品牌已换成 hex.school，内容忠于原讲义。
 
 ## 课程表
 
 | 课 | 主题 | 链接 |
 |---|---|---|
-| 第 1 课 | 零 Token 设计（Zero-Token Design） | [01.html](https://hexingxiang.github.io/ai-native/01.html) |
+| 第 1 课 | 零 Token 设计（Zero-Token Design） | [01.html](https://hexingxiang.github.io/hex/01.html) |
 | 第 2 课 | ChatGPT 之后，活儿怎么变 | 敬请期待 |
 
 ## 文件结构
@@ -27,4 +29,4 @@ assets/lesson-01-hero.png   第 1 课首屏图（1440×900）
 - 原文出处：Lawted, *Zero-Token Design*（2026-05-07）
 
 ---
-SCHOOL.HA7CH.COM · AI NATIVE 系列
+HEX.SCHOOL · AI NATIVE 学习笔记 · 原版 HA7CH.SCHOOL
