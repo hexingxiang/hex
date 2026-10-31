@@ -73,14 +73,14 @@
     color:var(--accent);background:var(--accent-soft);
     border:1px solid rgba(15,107,92,.16);padding:3px 8px;border-radius:999px;
   }
-  section{margin-top:16px}
+  section{margin-top:18px}
   h2{
     font:600 10.5px/1 "IBM Plex Mono", monospace;
     letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
-    display:flex;align-items:center;gap:10px;margin-bottom:9px;
+    display:flex;align-items:center;gap:10px;margin-bottom:10px;
   }
   h2::after{content:"";flex:1;height:1px;background:var(--line)}
-  .job,.proj{margin-bottom:12px}
+  .job,.proj{margin-bottom:13px}
   .edu{margin-bottom:0}
   .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
   .org{font-weight:700;font-size:14px}
@@ -110,11 +110,7 @@
     .sheet{
       box-shadow:none !important;border:none !important;border-radius:0 !important;
       width:100% !important;max-width:none !important;padding:0 !important;margin:0 !important;
-      min-height:calc(297mm - 18.5mm);
-      display:flex;flex-direction:column;
     }
-    .sheet > section{margin-top:18px}
-    .sheet > section:last-child{margin-top:auto;padding-top:10px;border-top:1px solid var(--line)}
     .actions{display:none !important}
     a{color:inherit;text-decoration:none}
   }
@@ -166,7 +162,8 @@
         <div class="sub"><b>测试开发工程师</b> · 巴西 KYC · 跨境金融合规与本地身份核验</div>
         <ul>
           <li><span class="label">Echo</span>对齐巴西监管、产品规则与真实核验路径，拆清表面流程与审核卡点（证件/活体、驳回补件、人工复核）。</li>
-          <li><span class="label">Delta</span>保障 KYC 主链路质量与问题闭环，覆盖通过/拒绝/复核分支，降低合规漏放与错误拦截对开户与资金业务的影响。</li>
+          <li><span class="label">Delta</span>保障 KYC 主链路质量与问题闭环，覆盖通过/拒绝/复核等关键分支，推动缺陷前置发现。</li>
+          <li><span class="label">约束</span>在跨境金融场景跟进规则变化，落到可测、可回归的核验链路，降低合规漏放与错误拦截对开户/资金业务的影响。</li>
         </ul>
       </div>
       <div class="job">
