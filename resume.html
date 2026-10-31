@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>贺星翔 · Forward Deployed Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+SC:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2430;
+    --muted:#5b6573;
+    --line:#d5dbe4;
+    --paper:#f7f4ef;
+    --card:#fffdf9;
+    --accent:#0f6b5c;
+    --accent-soft:#e6f3ef;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  @page{size:A4;margin:8.5mm 10.5mm 10mm}
+  body{
+    background:
+      radial-gradient(900px 420px at 12% -10%, rgba(15,107,92,.08), transparent 60%),
+      linear-gradient(180deg, #ebe6de 0%, var(--paper) 38%, #f3efe8 100%);
+    color:var(--ink);
+    font:400 13px/1.58 "Noto Sans SC", "PingFang SC", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:24px 14px 40px;
+  }
+  .sheet{
+    width:min(794px,100%);
+    margin:0 auto;
+    background:var(--card);
+    border:1px solid rgba(28,36,48,.08);
+    border-radius:14px;
+    padding:22px 24px 18px;
+    box-shadow:0 14px 40px rgba(28,36,48,.06);
+  }
+  .top{
+    display:grid;
+    grid-template-columns:1fr 84px;
+    gap:14px;
+    align-items:start;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--line);
+  }
+  .name{font:700 28px/1.1 "Source Serif 4", "Noto Sans SC", serif}
+  .role{
+    margin-top:5px;
+    font:600 11px/1.3 "IBM Plex Mono", monospace;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
+  }
+  .role span{color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0}
+  .contact{
+    margin-top:8px;color:var(--muted);font-size:12px;
+    display:flex;flex-wrap:wrap;gap:4px 12px;
+  }
+  .contact a{color:inherit;text-decoration:none}
+  .photo{
+    width:84px;height:102px;object-fit:cover;object-position:center top;
+    border-radius:8px;border:1px solid var(--line);background:#eee;
+  }
+  .summary{
+    margin:14px 0 0;padding:11px 13px;
+    background:linear-gradient(135deg, var(--accent-soft), #f7f4ef 70%);
+    border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+    color:#243041;font-size:12.4px;line-height:1.6;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .chips i{
+    font-style:normal;font-size:10.5px;font-weight:600;
+    color:var(--accent);background:var(--accent-soft);
+    border:1px solid rgba(15,107,92,.16);padding:3px 8px;border-radius:999px;
+  }
+  section{margin-top:18px}
+  h2{
+    font:600 10.5px/1 "IBM Plex Mono", monospace;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+    display:flex;align-items:center;gap:10px;margin-bottom:10px;
+  }
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
+  .job,.proj{margin-bottom:13px}
+  .edu{margin-bottom:0}
+  .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .org{font-weight:700;font-size:14px}
+  .meta{color:var(--muted);font-size:12px;white-space:nowrap}
+  .sub{margin-top:2px;color:var(--muted);font-size:12px}
+  .sub b{color:var(--ink);font-weight:600}
+  ul{margin:6px 0 0 1em}
+  li{margin:4px 0}
+  li strong{font-weight:600}
+  .label{display:inline-block;min-width:3.6em;color:var(--accent);font-weight:700}
+  .skills{display:grid;gap:6px}
+  .skills p{display:grid;grid-template-columns:5.6em 1fr;gap:8px}
+  .skills .k{font-weight:700;color:var(--accent);font-size:12px}
+  .skills .v{color:#2a3341}
+  .actions{
+    width:min(794px,100%);margin:12px auto 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+  }
+  .actions button,.actions a{
+    font:600 11px "IBM Plex Mono", monospace;letter-spacing:.04em;
+    color:var(--ink);background:rgba(255,253,249,.85);
+    border:1px solid rgba(28,36,48,.12);border-radius:999px;
+    padding:8px 14px;cursor:pointer;text-decoration:none;
+  }
+  .actions button:hover,.actions a:hover{border-color:var(--accent);color:var(--accent)}
+  @media print{
+    html,body{background:#fff !important;padding:0 !important;margin:0 !important}
+    .sheet{
+      box-shadow:none !important;border:none !important;border-radius:0 !important;
+      width:100% !important;max-width:none !important;padding:0 !important;margin:0 !important;
+    }
+    .actions{display:none !important}
+    a{color:inherit;text-decoration:none}
+  }
+  @media(max-width:640px){
+    .sheet{padding:16px 14px}
+    .top{grid-template-columns:1fr 70px}
+    .photo{width:70px;height:84px}
+    .name{font-size:24px}
+    .skills p{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+  <article class="sheet">
+    <header class="top">
+      <div>
+        <h1 class="name">贺星翔</h1>
+        <div class="role">Forward Deployed Engineer <span>/ AI 落地工程师</span></div>
+        <div class="contact">
+          <span>13671106284</span>
+          <a href="mailto:hexingxiang2001@163.com">hexingxiang2001@163.com</a>
+          <span>北京</span>
+          <span>24 岁</span>
+          <a href="https://github.com/hexingxiang" target="_blank" rel="noopener">github.com/hexingxiang</a>
+        </div>
+      </div>
+      <img class="photo" src="assets/resume-photo.png" alt="贺星翔">
+    </header>
+
+    <p class="summary">
+      <strong>FDE 取向：</strong>Echo（摸清真需求）+ Delta（端到端交付）。现职滴滴国际化金融，深耕<strong>巴西 KYC</strong>合规与身份核验；此前在快手增长外投独立交付 GraphRAG 排障助手与多模态素材评测 Agent（嵌生产），并具备百万 QPS 活动保障与故障止血经验。
+    </p>
+    <div class="chips">
+      <i>巴西 KYC / 合规</i>
+      <i>跨境金融</i>
+      <i>GraphRAG / Agent</i>
+      <i>生产嵌入</i>
+      <i>高并发保障</i>
+      <i>可辩护 ROI</i>
+    </div>
+
+    <section>
+      <h2>工作经历</h2>
+      <div class="job">
+        <div class="row">
+          <div class="org">滴滴 · 国际化金融</div>
+          <div class="meta">2026.03 — 至今</div>
+        </div>
+        <div class="sub"><b>测试开发工程师</b> · 巴西 KYC · 跨境金融合规与本地身份核验</div>
+        <ul>
+          <li><span class="label">Echo</span>对齐巴西监管、产品规则与真实核验路径，拆清表面流程与审核卡点（证件/活体、驳回补件、人工复核）。</li>
+          <li><span class="label">Delta</span>保障 KYC 主链路质量与问题闭环，覆盖通过/拒绝/复核等关键分支，推动缺陷前置发现。</li>
+          <li><span class="label">约束</span>在跨境金融场景跟进规则变化，落到可测、可回归的核验链路，降低合规漏放与错误拦截对开户/资金业务的影响。</li>
+        </ul>
+      </div>
+      <div class="job">
+        <div class="row">
+          <div class="org">快手 · 增长工程研发部</div>
+          <div class="meta">2023.07 — 2026.02 · 北京</div>
+        </div>
+        <div class="sub"><b>测试开发工程师</b> · 广告外投质量与 AI 落地</div>
+        <ul>
+          <li><span class="label">保障</span>主 R 两次春节活动：百万 QPS 压测 + 韧性演练，上线 <strong>0 故障 / 0 资损</strong>。</li>
+          <li><span class="label">落地</span>服务渠道运营/代理商全链路；素材审核 Agent 召回问题 <strong>1000+</strong>，回传异常监控发现 <strong>300+</strong>。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>项目经历</h2>
+      <div class="proj">
+        <div class="row">
+          <div class="org">广告投放平台 · GraphRAG 排障 + 素材 Agent（主 S）</div>
+          <div class="meta">2024.03 — 2026.02</div>
+        </div>
+        <div class="sub">国内增长核心外投（约 70% 增长贡献）· 广点通 / 巨量 / 百青藤</div>
+        <ul>
+          <li><strong>GraphRAG：</strong>语义切分 → BGE+FAISS + BM25 兜底 → 图库实体依赖；把排障文档沉淀为可检索、可推理的业务拓扑。</li>
+          <li><strong>素材 Agent：</strong>Qwen 多模态评测高光帧/标题合规/画质；约 <strong>¥0.01</strong>/条，日处理 <strong>1000+</strong>，日均拦截风险 <strong>100+</strong>，已嵌生产。</li>
+        </ul>
+      </div>
+      <div class="proj">
+        <div class="row">
+          <div class="org">2024 新春锦鲤 · 高并发活动保障</div>
+          <div class="meta">2023.11 — 2024.02</div>
+        </div>
+        <ul>
+          <li>数据构造脚本降测试准备人力约 <strong>70%</strong>；百万 QPS 压测中定位主页接口 50ms→800ms / 成功率 65%，Trace 止血；完成逃生与故障注入演练。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>专业技能</h2>
+      <div class="skills">
+        <p><span class="k">AI 落地</span><span class="v">GraphRAG、Multi-Agent / 多模态评测；LangChain / Coze / Dify</span></p>
+        <p><span class="k">业务交付</span><span class="v">巴西 KYC / 跨境合规；广告外投全链路；排障助手与生产嵌入</span></p>
+        <p><span class="k">工程底座</span><span class="v">Java / Spring Boot；SQL / Hive / Redis；FAISS / BM25 / 图数据库；压测与故障注入</span></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>教育经历</h2>
+      <div class="edu">
+        <div class="row">
+          <div class="org">大同大学 · 智能科学与技术（本科）</div>
+          <div class="meta">2019.09 — 2023.07</div>
+        </div>
+        <div class="sub">计算机与网络工程学院 · AI / NLP / 机器学习 / 网络 / 数据结构 / 概率论</div>
+      </div>
+    </section>
+
+  </article>
+
+  <div class="actions">
+    <button type="button" onclick="window.print()">打印 / 导出 PDF</button>
+    <a href="assets/resume-original.pdf">查看原版 PDF</a>
+    <a href="index.html">返回课程笔记</a>
+  </div>
+</body>
+</html>
