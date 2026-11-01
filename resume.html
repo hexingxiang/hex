@@ -3,287 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>贺星翔 · AI-Native Resume</title>
+<title>贺星翔 · 私有化解决方案 / AI Buddy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+SC:wght@400;500;600;700;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+SC:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg0:#0b1220;
-    --bg1:#121a2b;
-    --ink:#e8eef8;
-    --dim:#8b97ad;
-    --line:rgba(232,238,248,.12);
-    --acc:#3dffa8;
-    --acc2:#6ec8ff;
-    --warn:#ffd27a;
-    --panel:rgba(255,255,255,.035);
-    --mono:"JetBrains Mono","Cascadia Code",monospace;
-    --sans:"Noto Sans SC","PingFang SC",sans-serif;
-    --display:"Syne","Noto Sans SC",sans-serif;
+    --ink:#1c2430;
+    --muted:#5b6573;
+    --line:#d5dbe4;
+    --paper:#f7f4ef;
+    --card:#fffdf9;
+    --accent:#0f6b5c;
+    --accent-soft:#e6f3ef;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  @page{size:A4;margin:7.5mm 8.5mm}
+  @page{size:A4;margin:8.5mm 10.5mm 10mm}
   body{
-    min-height:100vh;
-    color:var(--ink);
-    font:400 12.1px/1.48 var(--sans);
     background:
-      radial-gradient(900px 520px at 8% -8%, rgba(61,255,168,.16), transparent 55%),
-      radial-gradient(700px 420px at 92% 8%, rgba(110,200,255,.14), transparent 50%),
-      linear-gradient(165deg, var(--bg0), var(--bg1) 55%, #0a101c);
+      radial-gradient(900px 420px at 12% -10%, rgba(15,107,92,.08), transparent 60%),
+      linear-gradient(180deg, #ebe6de 0%, var(--paper) 38%, #f3efe8 100%);
+    color:var(--ink);
+    font:400 12.6px/1.52 "Noto Sans SC", "PingFang SC", sans-serif;
     -webkit-font-smoothing:antialiased;
-    padding:22px 12px 40px;
+    padding:24px 14px 40px;
   }
   .sheet{
-    width:min(820px,100%);
+    width:min(794px,100%);
     margin:0 auto;
-    position:relative;
-    overflow:hidden;
-    border:1px solid var(--line);
-    border-radius:18px;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,.04), transparent 28%),
-      rgba(10,15,26,.72);
-    box-shadow:0 24px 80px rgba(0,0,0,.35);
-    padding:18px 20px 14px;
-    backdrop-filter:blur(10px);
-  }
-  .sheet::before{
-    content:"";
-    position:absolute;inset:0;pointer-events:none;opacity:.35;
-    background-image:radial-gradient(rgba(232,238,248,.09) 1px, transparent 1px);
-    background-size:14px 14px;
-    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 78%);
-  }
-  .runtime{
-    position:relative;z-index:1;
-    display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;
-    font:700 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
-    color:var(--dim);margin-bottom:12px;
-  }
-  .runtime b{color:var(--acc);font-weight:800}
-  .runtime .dot{
-    width:7px;height:7px;border-radius:50%;background:var(--acc);
-    box-shadow:0 0 0 0 rgba(61,255,168,.55);
-    animation:pulse 1.8s ease-out infinite;
-  }
-  @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(61,255,168,.45)}
-    70%{box-shadow:0 0 0 8px rgba(61,255,168,0)}
-    100%{box-shadow:0 0 0 0 rgba(61,255,168,0)}
+    background:var(--card);
+    border:1px solid rgba(28,36,48,.08);
+    border-radius:14px;
+    padding:20px 24px 16px;
+    box-shadow:0 14px 40px rgba(28,36,48,.06);
   }
   .top{
-    position:relative;z-index:1;
-    display:grid;grid-template-columns:1fr 86px;gap:14px;align-items:start;
+    display:grid;
+    grid-template-columns:1fr 82px;
+    gap:14px;
+    align-items:start;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--line);
   }
-  .kicker{
-    font:700 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--acc2);
-    margin-bottom:8px;
-  }
-  .name{
-    font:800 clamp(34px,5vw,44px)/.95 var(--display);
-    letter-spacing:-.03em;
-    background:linear-gradient(120deg,#fff 20%, var(--acc) 78%, var(--acc2));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
+  .name{font:700 27px/1.1 "Source Serif 4", "Noto Sans SC", serif}
   .role{
-    margin-top:8px;
-    font:700 12px/1.35 var(--mono);
-    color:var(--ink);
+    margin-top:4px;
+    font:600 10.5px/1.35 "IBM Plex Mono", monospace;
+    letter-spacing:.05em;text-transform:uppercase;color:var(--accent);
   }
-  .role span{color:var(--dim);font-weight:500}
+  .role span{color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0}
   .contact{
-    margin-top:9px;display:flex;flex-wrap:wrap;gap:5px 12px;
-    color:var(--dim);font:500 11.5px/1.3 var(--mono);
+    margin-top:7px;color:var(--muted);font-size:11.5px;
+    display:flex;flex-wrap:wrap;gap:4px 11px;
   }
-  .contact a{color:var(--acc2);text-decoration:none}
+  .contact a{color:inherit;text-decoration:none}
   .photo{
-    width:86px;height:104px;object-fit:cover;object-position:center top;
-    border-radius:12px;border:1px solid rgba(61,255,168,.35);
-    box-shadow:0 0 0 1px rgba(110,200,255,.12), 0 12px 30px rgba(0,0,0,.35);
+    width:82px;height:100px;object-fit:cover;object-position:center top;
+    border-radius:8px;border:1px solid var(--line);background:#eee;
   }
-
-  .arch{
-    position:relative;z-index:1;
-    margin-top:14px;
-    display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  .summary{
+    margin:11px 0 0;padding:9px 12px;
+    background:linear-gradient(135deg, var(--accent-soft), #f7f4ef 70%);
+    border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+    color:#243041;font-size:12px;line-height:1.55;
   }
-  .arch article{
-    border:1px solid var(--line);border-radius:12px;background:var(--panel);
-    padding:9px 10px 8px;min-height:72px;
-    transition:border-color .25s, transform .25s;
-  }
-  .arch article:hover{border-color:rgba(61,255,168,.45);transform:translateY(-1px)}
-  .arch .t{
-    font:800 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--acc);
-    margin-bottom:5px;
-  }
-  .arch .h{font:700 13px/1.25 var(--sans);margin-bottom:3px}
-  .arch p{color:var(--dim);font-size:11px;line-height:1.4}
-
-  .prompt{
-    position:relative;z-index:1;
-    margin-top:12px;border:1px solid var(--line);border-radius:12px;
-    background:linear-gradient(160deg, rgba(61,255,168,.06), rgba(110,200,255,.03));
-    overflow:hidden;
-  }
-  .prompt .bar{
-    display:flex;align-items:center;gap:6px;padding:7px 10px;
-    border-bottom:1px solid var(--line);background:rgba(0,0,0,.18);
-    font:700 10px/1 var(--mono);color:var(--dim);letter-spacing:.08em;
-  }
-  .prompt .bar i{width:8px;height:8px;border-radius:50%;display:block}
-  .prompt .bar i:nth-child(1){background:#ff5f57}
-  .prompt .bar i:nth-child(2){background:#febc2e}
-  .prompt .bar i:nth-child(3){background:#28c840}
-  .prompt .body{padding:9px 11px 10px;font-size:11.8px;line-height:1.55;color:#d7e0ef}
-  .prompt strong{color:#fff;font-weight:700}
-  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;position:relative;z-index:1}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
   .chips i{
-    font-style:normal;font:700 10px/1 var(--mono);
-    color:var(--acc);border:1px solid rgba(61,255,168,.28);
-    background:rgba(61,255,168,.07);padding:5px 8px;border-radius:999px;
+    font-style:normal;font-size:10px;font-weight:600;
+    color:var(--accent);background:var(--accent-soft);
+    border:1px solid rgba(15,107,92,.16);padding:2px 7px;border-radius:999px;
   }
-
-  section{position:relative;z-index:1;margin-top:13px}
+  section{margin-top:13px}
   h2{
-    font:800 10.5px/1 var(--mono);letter-spacing:.08em;color:var(--acc2);
-    display:flex;align-items:center;gap:10px;margin-bottom:8px;
+    font:600 10px/1 "IBM Plex Mono", monospace;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+    display:flex;align-items:center;gap:10px;margin-bottom:7px;
   }
-  h2::before{content:">_";color:var(--acc)}
-  h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg, rgba(110,200,255,.35), transparent)}
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
   .job,.proj{margin-bottom:9px}
-  .row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
-  .org{font-weight:800;font-size:13.5px}
-  .meta{color:var(--dim);font:600 11px/1.2 var(--mono);white-space:nowrap}
-  .sub{margin-top:2px;color:var(--dim);font-size:11.3px}
-  .sub b{color:var(--ink);font-weight:700}
+  .edu{margin-bottom:0}
+  .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .org{font-weight:700;font-size:13.5px}
+  .meta{color:var(--muted);font-size:11.5px;white-space:nowrap}
+  .sub{margin-top:1px;color:var(--muted);font-size:11.5px}
+  .sub b{color:var(--ink);font-weight:600}
   ul{margin:4px 0 0 1em}
-  li{margin:2.5px 0;color:#cdd6e6}
-  li strong{color:#fff;font-weight:700}
-  .label{
-    display:inline-block;min-width:4.2em;margin-right:.2em;
-    color:var(--acc);font:700 11px/1.3 var(--mono);
-  }
-  .skills{display:grid;gap:5px}
-  .skills p{
-    display:grid;grid-template-columns:6.4em 1fr;gap:8px;
-    border:1px solid var(--line);border-radius:10px;padding:7px 9px;background:var(--panel);
-  }
-  .skills .k{font:800 11px/1.3 var(--mono);color:var(--acc)}
-  .skills .v{color:#c8d2e4;font-size:11.5px}
-  .edu .org{font-size:13px}
-
+  li{margin:2.5px 0}
+  li strong{font-weight:600}
+  .label{display:inline-block;min-width:3.8em;color:var(--accent);font-weight:700}
+  .skills{display:grid;gap:4px}
+  .skills p{display:grid;grid-template-columns:6.2em 1fr;gap:8px}
+  .skills .k{font-weight:700;color:var(--accent);font-size:11.5px}
+  .skills .v{color:#2a3341}
   .actions{
-    width:min(820px,100%);margin:14px auto 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+    width:min(794px,100%);margin:12px auto 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
   }
   .actions button,.actions a{
-    font:700 11px var(--mono);letter-spacing:.04em;color:var(--ink);
-    background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;
-    padding:9px 14px;cursor:pointer;text-decoration:none;
+    font:600 11px "IBM Plex Mono", monospace;letter-spacing:.04em;
+    color:var(--ink);background:rgba(255,253,249,.85);
+    border:1px solid rgba(28,36,48,.12);border-radius:999px;
+    padding:8px 14px;cursor:pointer;text-decoration:none;
   }
-  .actions button:hover,.actions a:hover{border-color:var(--acc);color:var(--acc)}
-
+  .actions button:hover,.actions a:hover{border-color:var(--accent);color:var(--accent)}
   @media print{
-    html,body{
-      background:#0b1220 !important;padding:0 !important;margin:0 !important;color:var(--ink) !important;
-      -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    }
+    html,body{background:#fff !important;padding:0 !important;margin:0 !important}
     .sheet{
       box-shadow:none !important;border:none !important;border-radius:0 !important;
       width:100% !important;max-width:none !important;padding:0 !important;margin:0 !important;
-      background:transparent !important;backdrop-filter:none !important;
     }
-    .sheet::before{opacity:.2}
-    .runtime .dot{animation:none;box-shadow:none}
     .actions{display:none !important}
-    a{color:inherit !important;text-decoration:none}
+    a{color:inherit;text-decoration:none}
   }
   @media(max-width:640px){
-    .arch{grid-template-columns:1fr}
-    .top{grid-template-columns:1fr 72px}
-    .photo{width:72px;height:88px}
-    .name{font-size:32px}
+    .sheet{padding:16px 14px}
+    .top{grid-template-columns:1fr 70px}
+    .photo{width:70px;height:84px}
+    .name{font-size:24px}
     .skills p{grid-template-columns:1fr}
   }
 </style>
 </head>
 <body>
   <article class="sheet">
-    <div class="runtime"><span class="dot"></span> runtime <b>online</b> · echo+delta · ai-native · target: 私有化解决方案 / AI Buddy</div>
-
     <header class="top">
       <div>
-        <div class="kicker">human agent // shipping in the field</div>
         <h1 class="name">贺星翔</h1>
-        <div class="role">AI-Native Builder <span>/ FDE · 私有化方案 · AI Buddy</span></div>
+        <div class="role">私有化解决方案 / AI Buddy <span>· 目标岗 · FDE / AI 落地</span></div>
         <div class="contact">
           <span>13671106284</span>
           <a href="mailto:hexingxiang2001@163.com">hexingxiang2001@163.com</a>
           <span>北京</span>
-          <span>25</span>
+          <span>25 岁</span>
         </div>
       </div>
       <img class="photo" src="assets/resume-photo.png" alt="贺星翔">
     </header>
 
-    <div class="arch">
-      <article>
-        <div class="t">01 · model</div>
-        <div class="h">模型边界</div>
-        <p>多模型选型与成本/效果取舍，不迷信单一大模型。</p>
-      </article>
-      <article>
-        <div class="t">02 · agent</div>
-        <div class="h">编排与工具</div>
-        <p>Agent / MCP / AI Coding，把工具链接到真实业务闭环。</p>
-      </article>
-      <article>
-        <div class="t">03 · product</div>
-        <div class="h">业务承载</div>
-        <p>推理在模型侧，结果落进生产链路与合规约束。</p>
-      </article>
-    </div>
-
-    <div class="prompt">
-      <div class="bar"><i></i><i></i><i></i><span>system.prompt · whoami</span></div>
-      <div class="body">
-        面向<strong>金融与企业 IT 强约束场景</strong>做 AI 落地：Echo（摸清真需求）+ Delta（POC→生产）。
-        按 <strong>AI-Native</strong> 拆分「模型推理 / Agent 编排 / 业务承载」。现职滴滴巴西 KYC；快手交付 GraphRAG 排障助手与素材评测 Agent；SAP 实习沉淀 ERP 理解；熟练 Cursor / Claude Code。
-      </div>
-    </div>
+    <p class="summary">
+      面向<strong>金融与企业 IT 强约束场景</strong>做 AI 应用落地：Echo（摸清真需求）+ Delta（POC→生产）。熟悉多模型能力边界与选型取舍，按 <strong>AI-Native</strong> 思路拆分「模型推理 / Agent 编排 / 业务承载」。
+      现职滴滴巴西 KYC；快手交付 GraphRAG 排障助手与素材评测 Agent；有 SAP 实习沉淀的 ERP 理解；熟练 Cursor / Claude Code。
+    </p>
     <div class="chips">
-      <i>model routing</i>
-      <i>ai-native arch</i>
-      <i>fintech compliance</i>
-      <i>erp systems</i>
-      <i>poc → prod</i>
-      <i>cursor / openclaw</i>
+      <i>模型边界选型</i>
+      <i>AI-Native 架构</i>
+      <i>金融合规</i>
+      <i>ERP / 企业系统</i>
+      <i>POC → 生产</i>
+      <i>AI Coding / OpenClaw</i>
     </div>
 
     <section>
-      <h2>/work · 工作经历</h2>
+      <h2>工作经历</h2>
       <div class="job">
         <div class="row">
           <div class="org">滴滴 · 国际化金融</div>
-          <div class="meta">2026.03 — now</div>
+          <div class="meta">2026.03 — 至今</div>
         </div>
         <div class="sub"><b>测试开发工程师</b> · 巴西 KYC · 跨境金融合规与本地身份核验</div>
         <ul>
-          <li><span class="label">echo</span>对齐巴西监管、产品规则与真实核验路径（证件/活体、驳回补件、人工复核），贴近金融「强合规」约束。</li>
-          <li><span class="label">delta</span>覆盖通过/拒绝/复核分支做质量闭环；规则变化落到可测可回归链路，降低漏放/误拦影响。</li>
+          <li><span class="label">需求澄清</span>对齐巴西监管、产品规则与真实核验路径（证件/活体、驳回补件、人工复核），贴近金融「强合规」约束。</li>
+          <li><span class="label">方案闭环</span>覆盖通过/拒绝/复核分支做质量闭环；规则变化落到可测可回归链路，降低漏放/误拦对开户与资金业务影响。</li>
         </ul>
       </div>
       <div class="job">
         <div class="row">
           <div class="org">快手 · 增长工程研发部</div>
-          <div class="meta">2023.07 — 2026.02</div>
+          <div class="meta">2023.07 — 2026.02 · 北京</div>
         </div>
         <div class="sub"><b>测试开发工程师</b> · 广告外投质量与 AI 助手落地</div>
         <ul>
-          <li><span class="label">ship</span>主 R 两次春节活动：百万 QPS 压测 + 韧性演练，上线 <strong>0 故障 / 0 资损</strong>。</li>
-          <li><span class="label">embed</span>服务渠道运营/代理商；排障与素材审核 AI 能力嵌生产（召回 <strong>1000+</strong>，回传异常 <strong>300+</strong>）。</li>
+          <li><span class="label">现场保障</span>主 R 两次春节活动：百万 QPS 压测 + 韧性演练，上线 <strong>0 故障 / 0 资损</strong>。</li>
+          <li><span class="label">客户侧</span>服务渠道运营/代理商全链路；排障与素材审核 AI 能力嵌生产（召回 <strong>1000+</strong>，回传异常 <strong>300+</strong>）。</li>
         </ul>
       </div>
       <div class="job">
@@ -293,22 +183,22 @@
         </div>
         <div class="sub"><b>实习生</b> · ERP / 企业核心业务系统</div>
         <ul>
-          <li><span class="label">erp</span>理解财务/采购/库存/销售模块协同与主数据、单据流、组织架构约束；形成「业务对象 + 流程节点 + 系统配置」拆解习惯。</li>
+          <li><span class="label">ERP 理解</span>了解 SAP ERP 中财务/采购/库存/销售等模块如何协同支撑端到端流程，以及主数据、单据流与组织架构约束；形成「业务对象 + 流程节点 + 系统配置」的拆解习惯。</li>
         </ul>
       </div>
     </section>
 
     <section>
-      <h2>/ship · 项目交付</h2>
+      <h2>项目经历 · 对齐解决方案交付</h2>
       <div class="proj">
         <div class="row">
-          <div class="org">广告投放平台 · GraphRAG 排障 + 素材 Agent（主 S）</div>
+          <div class="org">广告投放平台 · GraphRAG 排障助手 + 素材评测 Agent（主 S）</div>
           <div class="meta">2024.03 — 2026.02</div>
         </div>
-        <div class="sub">增长核心外投（约 70% 贡献）· 广点通 / 巨量 / 百青藤 · 运营与代理商</div>
+        <div class="sub">国内增长核心外投（约 70% 增长贡献）· 广点通 / 巨量 / 百青藤 · 面向运营与代理商</div>
         <ul>
-          <li><strong>AI-Native：</strong>推理在模型侧、编排用 Agent、承载留业务链路；BGE/FAISS + BM25 + 图库拓扑，排障助手嵌生产（Cursor 提效）。</li>
-          <li><strong>模型边界：</strong>Qwen 多模态素材评测按成本/效果取舍；约 <strong>¥0.01</strong>/条，日处理 <strong>1000+</strong>，日均拦截风险 <strong>100+</strong>。</li>
+          <li><strong>AI-Native 落地：</strong>推理放模型侧、编排用 Agent、承载留在业务链路；语义切分 + BGE/FAISS + BM25 + 图库实体依赖，做成可检索可推理的排障拓扑并嵌生产（Cursor 提效）。</li>
+          <li><strong>模型边界：</strong>Qwen 多模态素材评测 Agent（高光帧/标题合规/画质），按成本与效果取舍；约 <strong>¥0.01</strong>/条，日处理 <strong>1000+</strong>，日均拦截风险 <strong>100+</strong>。</li>
         </ul>
       </div>
       <div class="proj">
@@ -317,23 +207,23 @@
           <div class="meta">2023.11 — 2024.02</div>
         </div>
         <ul>
-          <li>数据构造降人力约 <strong>70%</strong>；百万 QPS 下定位接口 50ms→800ms / 成功率 65% 并 Trace 止血；逃生与故障注入演练。</li>
+          <li>数据构造降测试准备人力约 <strong>70%</strong>；百万 QPS 下定位主页接口 50ms→800ms / 成功率 65% 并 Trace 止血；完成集群逃生与中间件故障注入，验证极端约束下的核心可用性。</li>
         </ul>
       </div>
     </section>
 
     <section>
-      <h2>/stack · 能力栈</h2>
+      <h2>专业技能</h2>
       <div class="skills">
-        <p><span class="k">ai-native</span><span class="v">多模型边界与选型；Agent 编排 + 业务承载；GraphRAG / Multi-Agent；LangChain / Coze / Dify；MCP</span></p>
-        <p><span class="k">ai-coding</span><span class="v">Cursor / Claude Code；了解 CodeBuddy / OpenClaw 工具集成；方案验证与交付提效</span></p>
-        <p><span class="k">domain</span><span class="v">SAP ERP；金融 KYC / 跨境合规；广告外投；需求澄清、POC→生产</span></p>
-        <p><span class="k">eng</span><span class="v">Java / Spring Boot；SQL / Hive / Redis；FAISS / BM25 / 图数据库；压测、故障注入、Trace</span></p>
+        <p><span class="k">AI-Native</span><span class="v">熟悉多模型能力边界与选型；Agent 编排 + 业务承载分工；GraphRAG / Multi-Agent；LangChain、Coze、Dify；MCP 工具调用</span></p>
+        <p><span class="k">AI Coding</span><span class="v">熟练 Cursor、Claude Code；了解 CodeBuddy / OpenClaw 等 AI Coding 产品与工具集成思路；用于方案验证与交付提效</span></p>
+        <p><span class="k">业务与方案</span><span class="v">SAP ERP 流程与主数据约束；金融 KYC / 跨境合规；广告外投；需求澄清、POC→生产</span></p>
+        <p><span class="k">工程底座</span><span class="v">Java / Spring Boot；SQL / Hive / Redis；FAISS / BM25 / 图数据库；压测、故障注入、链路追踪</span></p>
       </div>
     </section>
 
     <section>
-      <h2>/edu · 教育</h2>
+      <h2>教育经历</h2>
       <div class="edu">
         <div class="row">
           <div class="org">大同大学 · 智能科学与技术（本科）</div>
@@ -342,13 +232,15 @@
         <div class="sub">计算机与网络工程学院 · AI / NLP / 机器学习 / 网络 / 数据结构 / 概率论</div>
       </div>
     </section>
+
   </article>
 
   <div class="actions">
     <button type="button" onclick="window.print()">打印 / 导出 PDF</button>
     <a href="assets/resume.pdf">下载 PDF</a>
     <a href="assets/HeXingxiang-FDE-Resume.pdf">备用 PDF</a>
-    <a href="index.html">返回</a>
+    <a href="assets/resume-original.pdf">查看原版 PDF</a>
+    <a href="index.html">返回课程笔记</a>
   </div>
 </body>
 </html>
