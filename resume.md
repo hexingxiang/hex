@@ -1,6 +1,6 @@
 # 贺星翔 · Forward Deployed Engineer（一页版）
 
-13671106284 · hexingxiang2001@163.com · 北京 · 24 岁 · [github.com/hexingxiang](https://github.com/hexingxiang)  
+13671106284 · hexingxiang2001@163.com · 北京 · 25 岁 · [github.com/hexingxiang](https://github.com/hexingxiang)  
 目标：Forward Deployed Engineer / AI 落地工程师  
 现职：滴滴 · 国际化金融 · 测试开发工程师 · 巴西 KYC
 
