@@ -10,7 +10,7 @@
 
 ### 滴滴 · 国际化金融 · 测试开发工程师｜2026.03 — 至今
 - **KYC**：对齐巴西监管与真实核验路径；覆盖通过/拒绝/复核分支，规则变化落到可测可回归链路。
-- **Skill 工作流**：上传 UI / PRD / 技术方案 → 生成测试用例与自动化 Case → 沉淀知识库，用 AI 重塑测试工作流。
+- **Skill 工作流**：UI/PRD/技术方案 → 用例与自动化 Case（黄金集构建 / Loop / Case 质量评测）→ 知识库；MidScene + Artemis 全自动 UI 执行。
 
 ### 快手 · 增长工程研发部 · 测试开发工程师｜2023.07 — 2026.02 · 北京
 - **现场保障**：主 R 两次春节活动；百万 QPS 压测 + 韧性演练；0 故障 / 0 资损。
@@ -22,8 +22,8 @@
 ## 项目经历
 
 ### 滴滴 · Skill 驱动的测试工作流重塑｜2026.03 — 至今
-- **工作流**：UI / PRD / 技术方案 → Skill 生成测试用例 + 自动化 Case → 知识库沉淀。
-- **AI-Native**：用例生产由 Agent/Skill 编排；知识库反哺迭代，形成「生成 → 沉淀 → 复用」闭环。
+- **工作流**：UI / PRD / 技术方案 → Skill 生成用例与自动化 Case → 知识库；含黄金集构建、Loop 迭代、Case 质量评测。
+- **全自动执行**：基于 MidScene 与 Artemis 做 AI UI 自动化，打通「生成 → 评测 → 执行 → 回流」。
 
 ### 广告投放平台 · GraphRAG 排障 + 素材 Agent（主 S）｜2024.03 — 2026.02
 - BGE/FAISS + BM25 + 图库拓扑排障助手嵌生产；Qwen 多模态素材评测约 ¥0.01/条，日处理 1000+，日均拦截风险 100+。
@@ -32,7 +32,7 @@
 - 数据构造降人力约 70%；百万 QPS 下定位接口抖动并 Trace 止血；逃生与故障注入演练。
 
 ## 专业技能
-- **AI-Native**：多模型边界；Skill/Agent 编排；用例生成→知识库；GraphRAG / Multi-Agent；LangChain / Coze / Dify；MCP
+- **AI-Native**：多模型边界；Skill/Agent；黄金集 / Loop / Case 评测；MidScene + Artemis UI 自动化；GraphRAG；LangChain / Coze / Dify；MCP
 - **AI Coding**：Cursor、Claude Code；了解 CodeBuddy / OpenClaw
 - **业务与方案**：SAP ERP；金融 KYC；广告外投；POC→生产
 - **工程底座**：Java / Spring Boot；SQL / Hive / Redis；FAISS / BM25 / 图数据库；压测与故障注入
