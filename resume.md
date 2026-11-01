@@ -29,8 +29,8 @@
 - 数据构造降人力约 70%；百万 QPS 下定位接口抖动并 Trace 止血；逃生与故障注入演练。
 
 ## 专业技能
-- **AI-Native**：多模型能力边界与选型；Agent 编排 + 业务承载；GraphRAG / Multi-Agent；LangChain / Coze / Dify
-- **AI Coding**：Cursor、Claude Code
+- **AI-Native**：多模型能力边界与选型；Agent 编排 + 业务承载；GraphRAG / Multi-Agent；LangChain / Coze / Dify；MCP 工具调用
+- **AI Coding**：Cursor、Claude Code；了解 CodeBuddy / OpenClaw 等产品与工具集成思路
 - **业务与方案**：SAP ERP；金融 KYC / 跨境合规；广告外投；POC→生产
 - **工程底座**：Java / Spring Boot；SQL / Hive / Redis；FAISS / BM25 / 图数据库；压测与故障注入
 
