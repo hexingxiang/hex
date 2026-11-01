@@ -1,6 +1,6 @@
 # 贺星翔 · 私有化解决方案 / AI Buddy（目标岗）
 
-13671106284 · hexingxiang2001@163.com · 北京 · 25 岁 · [github.com/hexingxiang](https://github.com/hexingxiang)  
+13671106284 · hexingxiang2001@163.com · 北京 · 25 岁  
 目标：腾讯云私有化解决方案架构师（AI Buddy）/ FDE · AI 落地  
 现职：滴滴 · 国际化金融 · 测试开发工程师 · 巴西 KYC
 
