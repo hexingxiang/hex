@@ -10,13 +10,18 @@
 
 | 课 | 主题 | 链接 |
 |---|---|---|
+| 简历 | Forward Deployed Engineer 向改写版 | [resume.html](https://hexingxiang.github.io/hex/resume.html) |
 | 第 1 课 | 零 Token 设计（Zero-Token Design） | [01.html](https://hexingxiang.github.io/hex/01.html) |
 | 第 2 课 | ChatGPT 之后，活儿怎么变 | 敬请期待 |
 
 ## 文件结构
 
 ```
+resume.html                 FDE 向简历页（浏览器打开后可「打印 / 导出 PDF」）
+resume.md                   同内容 Markdown，方便继续改
 01.html                     第 1 课单文件页面（交互模式直接打开；加 ?capture=1 为静态截图模式）
+assets/resume-photo.png     简历头像
+assets/resume-original.pdf  改写前原版 PDF
 assets/lesson-01-full.png   第 1 课全页长图（1440×11495）
 assets/lesson-01-hero.png   第 1 课首屏图（1440×900）
 ```
