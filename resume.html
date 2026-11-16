@@ -18,13 +18,13 @@
     --accent-soft:#e6f3ef;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  @page{size:A4;margin:8.5mm 10.5mm 10mm}
+  @page{size:A4;margin:7.5mm 10mm 8mm}
   body{
     background:
       radial-gradient(900px 420px at 12% -10%, rgba(15,107,92,.08), transparent 60%),
       linear-gradient(180deg, #ebe6de 0%, var(--paper) 38%, #f3efe8 100%);
     color:var(--ink);
-    font:400 12.6px/1.52 "Noto Sans SC", "PingFang SC", sans-serif;
+    font:400 12.2px/1.45 "Noto Sans SC", "PingFang SC", sans-serif;
     -webkit-font-smoothing:antialiased;
     padding:24px 14px 40px;
   }
@@ -34,7 +34,7 @@
     background:var(--card);
     border:1px solid rgba(28,36,48,.08);
     border-radius:14px;
-    padding:20px 24px 16px;
+    padding:16px 22px 12px;
     box-shadow:0 14px 40px rgba(28,36,48,.06);
   }
   .top{
@@ -62,33 +62,33 @@
     border-radius:8px;border:1px solid var(--line);background:#eee;
   }
   .summary{
-    margin:11px 0 0;padding:9px 12px;
+    margin:9px 0 0;padding:7px 11px;
     background:linear-gradient(135deg, var(--accent-soft), #f7f4ef 70%);
     border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
-    color:#243041;font-size:12px;line-height:1.55;
+    color:#243041;font-size:11.6px;line-height:1.48;
   }
-  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
   .chips i{
     font-style:normal;font-size:10px;font-weight:600;
     color:var(--accent);background:var(--accent-soft);
     border:1px solid rgba(15,107,92,.16);padding:2px 7px;border-radius:999px;
   }
-  section{margin-top:13px}
+  section{margin-top:10px}
   h2{
     font:600 10px/1 "IBM Plex Mono", monospace;
     letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
-    display:flex;align-items:center;gap:10px;margin-bottom:7px;
+    display:flex;align-items:center;gap:10px;margin-bottom:5px;
   }
   h2::after{content:"";flex:1;height:1px;background:var(--line)}
-  .job,.proj{margin-bottom:9px}
+  .job,.proj{margin-bottom:7px}
   .edu{margin-bottom:0}
   .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
   .org{font-weight:700;font-size:13.5px}
   .meta{color:var(--muted);font-size:11.5px;white-space:nowrap}
   .sub{margin-top:1px;color:var(--muted);font-size:11.5px}
   .sub b{color:var(--ink);font-weight:600}
-  ul{margin:4px 0 0 1em}
-  li{margin:2.5px 0}
+  ul{margin:3px 0 0 1em}
+  li{margin:1.5px 0}
   li strong{font-weight:600}
   .label{display:inline-block;min-width:3.8em;color:var(--accent);font-weight:700}
   .skills{display:grid;gap:4px}
@@ -141,7 +141,7 @@
 
     <p class="summary">
       3 年+ 测试开发：既用 AI <strong>重塑测试工作流</strong>，也做 AI 系统本身的<strong>评测与生产落地</strong>。
-      滴滴：Skill 驱动「生成 → 黄金集 / Loop 评测 → MidScene+Artemis 执行 → 知识库」；快手：GraphRAG 排障与多模态素材 Agent 嵌生产，并保障百万 QPS 活动质量；覆盖金融 KYC 合规可测性。
+      滴滴：Skill 驱动「生成 → 黄金集 / Loop 评测 → MidScene+Artemis 执行 → 知识库」；快手：GraphRAG 排障与多模态素材 Agent 嵌生产，并保障百万 QPS 活动质量；覆盖金融 KYC 与 SAP HANA Finance（保时捷项目）财务场景理解。
     </p>
     <div class="chips">
       <i>Skill 用例生成</i>
@@ -178,12 +178,13 @@
       </div>
       <div class="job">
         <div class="row">
-          <div class="org">SAP</div>
+          <div class="org">SAP · HANA Finance</div>
           <div class="meta">2022.05 — 2022.09</div>
         </div>
-        <div class="sub"><b>实习生</b> · ERP / 企业核心业务系统</div>
+        <div class="sub"><b>实习生</b> · 财务域 · 保时捷相关项目支持</div>
         <ul>
-          <li><span class="label">ERP</span>了解财务/采购/库存/销售模块协同与主数据、单据流约束；形成「业务对象 + 流程节点 + 系统配置」拆解习惯，支撑复杂业务可测性设计。</li>
+          <li><span class="label">HANA FI</span>SAP HANA Finance：总账/应收应付、凭证与期间结账、主数据与组织架构；理解财务单据如何贯通采购/库存/销售。</li>
+          <li><span class="label">保时捷</span>参与保时捷财务相关交付支持：对齐客户财务规则与系统配置差异，协助需求澄清、场景验证与问题跟进；沉淀「业务对象 + 流程节点 + 配置」拆解。</li>
         </ul>
       </div>
     </section>
@@ -217,7 +218,7 @@
           <div class="meta">2023.11 — 2024.02</div>
         </div>
         <ul>
-          <li>数据构造降人力约 <strong>70%</strong>；百万 QPS 下定位接口 50ms→800ms / 成功率 65% 并 Trace 止血；逃生与故障注入演练。</li>
+          <li>数据构造降人力约 <strong>70%</strong>；百万 QPS 下定位接口抖动并 Trace 止血；逃生与故障注入演练。</li>
         </ul>
       </div>
     </section>
@@ -227,7 +228,7 @@
       <div class="skills">
         <p><span class="k">AI 测开</span><span class="v">Skill/Agent 用例生成；黄金集 / Loop / Case 质量评测；MidScene + Artemis UI 自动化；多模型边界与选型</span></p>
         <p><span class="k">AI 系统质量</span><span class="v">GraphRAG（BGE/FAISS/BM25/图）；多模态评测（Qwen）；LangChain / Coze / Dify；了解 MCP</span></p>
-        <p><span class="k">工程与保障</span><span class="v">Java / Spring Boot；SQL / Hive / Redis；压测、故障注入、链路追踪；金融 KYC / 广告外投业务</span></p>
+        <p><span class="k">工程与保障</span><span class="v">Java / Spring Boot；SQL / Hive / Redis；压测、故障注入、链路追踪；金融 KYC；SAP HANA Finance / 广告外投</span></p>
         <p><span class="k">提效工具</span><span class="v">熟练 Cursor、Claude Code；了解 CodeBuddy / OpenClaw</span></p>
       </div>
     </section>

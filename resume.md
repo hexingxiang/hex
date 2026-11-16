@@ -4,7 +4,7 @@
 目标：AI 测试开发 / 质量工程（AI for Test + Test for AI）  
 现职：滴滴 · 国际化金融 · 测试开发工程师 · 巴西 KYC
 
-3 年+ 测试开发：用 AI 重塑测试工作流，也做 AI 系统本身的评测与落地。滴滴：Skill 驱动「生成 → 黄金集 / Loop 评测 → MidScene+Artemis 执行 → 知识库」；快手：GraphRAG 排障助手与多模态素材 Agent 嵌生产，并承担高并发活动质量保障；具备金融 KYC 合规场景与 ERP 业务拆解经验。
+3 年+ 测试开发：用 AI 重塑测试工作流，也做 AI 系统本身的评测与落地。滴滴：Skill 驱动「生成 → 黄金集 / Loop 评测 → MidScene+Artemis 执行 → 知识库」；快手：GraphRAG 排障助手与多模态素材 Agent 嵌生产，并承担高并发活动质量保障；具备金融 KYC 合规场景与 SAP HANA Finance（保时捷项目）财务场景理解。
 
 ## 工作经历
 
@@ -16,8 +16,9 @@
 - **活动质量**：主 R 两次春节活动；百万 QPS 压测 + 韧性演练；上线 **0 故障 / 0 资损**。
 - **AI 质量落地**：服务渠道运营/代理商全链路；排障与素材审核 AI 能力嵌生产（召回 **1000+**，回传异常 **300+**）。
 
-### SAP · 实习生｜2022.05 — 2022.09
-- **ERP 理解**：财务/采购/库存/销售模块协同、主数据与单据流约束；「业务对象 + 流程节点 + 系统配置」拆解习惯，利于复杂业务可测性设计。
+### SAP · HANA Finance · 实习生｜2022.05 — 2022.09
+- **HANA FI**：SAP HANA Finance 财务核心流程（总账/应收应付、凭证与期间结账、主数据与组织架构）；理解财务单据如何贯通采购/库存/销售。
+- **保时捷项目**：参与保时捷财务相关交付支持；对齐客户财务规则与系统配置差异，协助需求澄清、场景验证与问题跟进；沉淀「业务对象 + 流程节点 + 配置」拆解习惯。
 
 ## 项目经历
 
@@ -34,7 +35,7 @@
 ## 专业技能
 - **AI 测开**：Skill/Agent 用例生成；黄金集 / Loop / Case 质量评测；MidScene + Artemis UI 自动化；多模型边界与选型
 - **AI 系统质量**：GraphRAG（BGE/FAISS/BM25/图）；多模态评测（Qwen）；LangChain / Coze / Dify；了解 MCP
-- **工程与保障**：Java / Spring Boot；SQL / Hive / Redis；压测、故障注入、链路追踪；金融 KYC / 广告外投业务
+- **工程与保障**：Java / Spring Boot；SQL / Hive / Redis；压测、故障注入、链路追踪；金融 KYC；SAP HANA Finance / 广告外投
 - **提效工具**：Cursor、Claude Code；了解 CodeBuddy / OpenClaw
 
 ## 教育
