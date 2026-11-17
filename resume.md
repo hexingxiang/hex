@@ -1,10 +1,10 @@
 # 贺星翔 · Forward Deployed Engineer（FDE）
 
-13671106284 · hexingxiang2001@163.com · 上海 · 25 岁  
+13671106284 · hexingxiang2001@163.com · 北京 · 25 岁  
 目标：Forward Deployed Engineer / AI 落地工程师  
 现职：滴滴 · 国际化金融 · 全栈工程师 · 巴西 KYC
 
-面向真实业务约束做 AI 落地（Echo + Delta）：滴滴全栈交付 Skill 测试工作流；快手任 **Agent 评测工程师**，把排障 / 素材 Agent 评到可嵌生产；百度文心一言实习完成网盘/文库接入；覆盖金融 KYC 与 SAP HANA Finance（保时捷）场景。
+面向真实业务约束做 AI 落地（Echo + Delta）：滴滴全栈交付 Skill 测试工作流（黄金集 / Loop / MidScene+Artemis）；快手任 **Agent 评测工程师**，把排障 / 素材 Agent 评到可嵌生产；覆盖金融 KYC 强合规场景。
 
 ## 工作经历
 
